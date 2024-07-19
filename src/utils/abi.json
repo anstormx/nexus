@@ -1,16 +1,44 @@
 {
-  "address": "0x4d6eDf83Ad8e554C78c0ECd4Df946101a6a38747",
+  "address": "0x15099e0e1C665aF46498AD064429408665EdA720",
+  "implementationAddress": "0x020e41C62ceAAc18D62E4678aF2D701d74A82386",
   "abi": [
     {
       "type": "constructor",
       "stateMutability": "undefined",
       "payable": false,
-      "inputs": [
-        { "type": "address", "name": "_swapRouter" },
-        { "type": "uint24", "name": "_feeTier" }
-      ]
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "AddressEmptyCode",
+      "inputs": [{ "type": "address", "name": "target" }]
+    },
+    {
+      "type": "error",
+      "name": "ERC1967InvalidImplementation",
+      "inputs": [{ "type": "address", "name": "implementation" }]
+    },
+    { "type": "error", "name": "ERC1967NonPayable", "inputs": [] },
+    { "type": "error", "name": "FailedInnerCall", "inputs": [] },
+    { "type": "error", "name": "InvalidInitialization", "inputs": [] },
+    { "type": "error", "name": "NotInitializing", "inputs": [] },
+    {
+      "type": "error",
+      "name": "OwnableInvalidOwner",
+      "inputs": [{ "type": "address", "name": "owner" }]
+    },
+    {
+      "type": "error",
+      "name": "OwnableUnauthorizedAccount",
+      "inputs": [{ "type": "address", "name": "account" }]
     },
     { "type": "error", "name": "ReentrancyGuardReentrantCall", "inputs": [] },
+    { "type": "error", "name": "UUPSUnauthorizedCallContext", "inputs": [] },
+    {
+      "type": "error",
+      "name": "UUPSUnsupportedProxiableUUID",
+      "inputs": [{ "type": "bytes32", "name": "slot" }]
+    },
     {
       "type": "event",
       "anonymous": false,
@@ -19,6 +47,12 @@
         { "type": "uint24", "name": "previousFeeTier", "indexed": false },
         { "type": "uint24", "name": "newFeeTier", "indexed": false }
       ]
+    },
+    {
+      "type": "event",
+      "anonymous": false,
+      "name": "Initialized",
+      "inputs": [{ "type": "uint64", "name": "version", "indexed": false }]
     },
     {
       "type": "event",
@@ -51,6 +85,23 @@
       ]
     },
     {
+      "type": "event",
+      "anonymous": false,
+      "name": "Upgraded",
+      "inputs": [
+        { "type": "address", "name": "implementation", "indexed": true }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "UPGRADE_INTERFACE_VERSION",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "string", "name": "" }]
+    },
+    {
       "type": "function",
       "name": "feeTier",
       "constant": true,
@@ -70,12 +121,40 @@
     },
     {
       "type": "function",
+      "name": "initialize",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "_swapRouter" },
+        { "type": "uint24", "name": "_feeTier" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "owner",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
       "inputs": [],
       "outputs": [{ "type": "address", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "proxiableUUID",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [{ "type": "bytes32", "name": "" }]
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
     },
     {
       "type": "function",
@@ -124,7 +203,19 @@
       "name": "transferOwnership",
       "constant": false,
       "payable": false,
-      "inputs": [{ "type": "address", "name": "_newOwner" }],
+      "inputs": [{ "type": "address", "name": "newOwner" }],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "upgradeToAndCall",
+      "constant": false,
+      "stateMutability": "payable",
+      "payable": true,
+      "inputs": [
+        { "type": "address", "name": "newImplementation" },
+        { "type": "bytes", "name": "data" }
+      ],
       "outputs": []
     }
   ]

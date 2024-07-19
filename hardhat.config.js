@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@openzeppelin/hardhat-upgrades");
 require("dotenv").config();
 
 
@@ -7,7 +8,7 @@ module.exports = {
   solidity: "0.8.24",
   networks: {
     polygonAmoy: {
-      url: `${process.env.POLYGON_AMOY_RPC_URL}`,
+      url: `${process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC_URL}`,
       accounts: [process.env.ACCOUNT_PRIVATE_KEY],
       },
   },
