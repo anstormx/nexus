@@ -7,9 +7,12 @@ import Footer from "./footer";
 import abi from "../../utils/abi.json";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
+import { useIsMounted } from "@/hooks/useIsMounted";
+import { ChainId, Token, Fetcher, Route } from "@uniswap/sdk";
+
+require("dotenv").config();
 
 function Swap() {
-  const [slippage, setSlippage] = useState(1.0);
   const [isOpen, setIsOpen] = useState(false);
   const [changeToken, setChangeToken] = useState(null);
   const [numInputTokens, setNumInputTokens] = useState(1);
@@ -19,28 +22,83 @@ function Swap() {
   const [outputToken, setOutputToken] = useState(tokenList[2]);
   const [outputAmount, setOutputAmount] = useState(null);
   const [contract, setContract] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [prices, setPrices] = useState({});
+
 
   const { address, isConnected } = useAccount();
+
+  const isMounted = useIsMounted();
 
   // Get contract
   useEffect(() => {
     const initContract = async () => {
       if (typeof window.ethereum !== "undefined") {
         const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+
+        setSigner(signer);
+
         const multiTokenSwapContract = new ethers.Contract(
-          abi.implementationAddress,
+          abi.address,
           abi.abi,
-          address
+          signer
         );
         setContract(multiTokenSwapContract);
+        console.log("Contract initialized");
       }
     };
 
-    initContract();
-  }, [address]);
+    if (isMounted) {
+      initContract();
+    }
+  }, [isMounted]);
+
+  // Fetch prices from Uniswap
+  useEffect(() => {
+    const fetchPrices = async () => {
+      const tokenPrices = {};
+
+      const USDC = new Token(ChainId.MAINNET, ethers.getAddress("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"), 6);
+      console.log(USDC);
+
+      for (let i = 0; i < 2; i++) {
+        const tokenData = tokenList[i];
+        console.log(tokenData);
+
+        const tokenAddress = ethers.getAddress(tokenData.address);
+        console.log(tokenAddress);
+        const token = new Token(tokenData.chainId, tokenAddress, tokenData.decimals);
+        try {
+          const pair = await Fetcher.fetchPairData(token, USDC, signer);
+          if (!pair) {
+            console.error(`No pair found for ${tokenData.symbol}`);
+            continue;
+          }
+          const route = new Route([pair], Fetcher.WETH[token.chainId]);
+          tokenPrices[tokenData.symbol] = route.midPrice.toSignificant(6);
+        } catch (error) {
+          console.error(`Error fetching price for ${tokenData.symbol}:`, error);
+        }
+      }
+      console.log(tokenPrices);
+
+      // setPrices(tokenPrices);
+    };
+
+    if (isMounted) {
+      fetchPrices();
+    }
+  }, [isMounted, signer]);
 
   const handleSwap = async () => {
-    if (!contract || !isConnected) return;
+    setLoading(true);
+
+    if (!contract || !isConnected) {
+      toast.error("Please connect your wallet first.");
+      return;
+    }
 
     toast.info("Swapping tokens. Please wait...");
 
@@ -48,9 +106,10 @@ function Swap() {
       const tokenInAddresses = inputTokens.map((input) => input.token.address);
       console.log(tokenInAddresses);
 
-      const amountsIn = inputTokens.map((input) =>
-        ethers.parseUnits(input.amount, input.token.decimals)
-      );
+      const amountsIn = inputTokens.map((input) => {
+        if (!input.amount) return BigInt(0);
+        return ethers.parseUnits(input.amount, input.token.decimals);
+      });
       console.log(amountsIn);
 
       const tokenOutAddress = outputToken.address;
@@ -63,23 +122,45 @@ function Swap() {
           [
             "function approve(address spender, uint256 amount) public returns (bool)",
           ],
-          address
+          signer
         );
-        await tokenContract.approve(contract.address, amountsIn[i]);
+
+        console.log(`Approving ${inputTokens[i].token.symbol}`);
+
+        // const approveTx = await tokenContract.approve(
+        //   abi.implementationAddress,
+        //   amountsIn[i]
+        // );
+
+        // await approveTx.wait();
+
+        console.log(`Approved ${inputTokens[i].token.symbol}`);
       }
 
       // Call the swapTokens function
-      const tx = await contract.swapTokens(
-        tokenInAddresses,
-        amountsIn,
-        tokenOutAddress
-      );
-      await tx.wait();
+      if (contract) {
 
-      console.log("Swap successful!");
-      // Reset input amounts or update UI as needed
+        console.log("Swapping tokens");
+        console.log(tokenInAddresses);
+        console.log(amountsIn);
+        console.log(tokenOutAddress);
+
+        const tx = await contract.swapTokens(
+          tokenInAddresses,
+          amountsIn,
+          tokenOutAddress
+        );
+        await tx.wait();
+
+        toast.success("Swap successful!");
+        setLoading(false);
+      } else {
+        toast.error("Contract not found");
+        setLoading(false);
+      }
     } catch (error) {
-      console.error("Error during swap:", error);
+      console.log("Error during swap:", error);
+      setLoading(false);
     }
   };
 
@@ -141,14 +222,15 @@ function Swap() {
     });
   }, []);
 
-  function handleNumInputTokensChange(value) {
+  const handleNumInputTokensChange = useCallback((value) => {
     const newInputTokens = [...inputTokens];
     while (newInputTokens.length < value) {
       newInputTokens.push({ token: tokenList[0], amount: "" });
     }
     setNumInputTokens(value);
     setInputTokens(newInputTokens.slice(0, value));
-  }
+  }, [inputTokens]);
+  
 
   const settings = (
     <div className="p-4 bg-zinc-900 rounded-lg">
@@ -170,6 +252,8 @@ function Swap() {
       </div>
     </div>
   );
+
+  if (!isMounted) return null;
 
   return (
     <div>
@@ -243,20 +327,21 @@ function Swap() {
 
         {/* Swap button */}
         <div
-          className={`bg-pink-500 w-full h-[55px] text-xl text-center rounded-xl font-semibold transition duration-200 mt-1 py-3 ${
+          className={`flex justify-center items-center bg-pink-500 w-full h-[55px] text-xl rounded-xl font-bold transition duration-200 ${
             !inputTokens.some((input) => input.amount) || !isConnected
               ? "opacity-40 cursor-not-allowed"
               : "hover:bg-pink-400 cursor-pointer"
           }`}
           onClick={handleSwap}
+          disabled={loading}
         >
-          Swap
+          {isConnected ? "Swap" : "Connect Wallet"}
         </div>
       </div>
 
       {/* Footer */}
       <div>
-        <p className="text-gray-400 text-base mt-6 text-center mb-[3%]">
+        <p className="text-gray-400 text-base mt-6 text-center mb-[3.8%]">
           The largest onchain marketplace. Buy and sell crypto
           <br />
           on Ethereum and 7+ other chains.

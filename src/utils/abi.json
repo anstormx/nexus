@@ -1,6 +1,6 @@
 {
-  "address": "0x15099e0e1C665aF46498AD064429408665EdA720",
-  "implementationAddress": "0x020e41C62ceAAc18D62E4678aF2D701d74A82386",
+  "address": "0x92A9E59f7A985C53d647420Ab7ddf855ef395Ff9",
+  "implementationAddress": "0x27f17bF44A610b51D1A3Ab7366C58d36171Cb865",
   "abi": [
     {
       "type": "constructor",
@@ -80,8 +80,7 @@
         { "type": "address[]", "name": "tokenIn" },
         { "type": "uint256[]", "name": "amountsIn" },
         { "type": "address", "name": "tokenOut", "indexed": false },
-        { "type": "uint256", "name": "totalAmountOut", "indexed": false },
-        { "type": "uint256", "name": "deadline", "indexed": false }
+        { "type": "uint256", "name": "totalAmountOut", "indexed": false }
       ]
     },
     {
@@ -192,9 +191,7 @@
       "inputs": [
         { "type": "address[]", "name": "tokenIn" },
         { "type": "uint256[]", "name": "amountsIn" },
-        { "type": "address", "name": "tokenOut" },
-        { "type": "uint256[]", "name": "amountsOutMinimum" },
-        { "type": "uint256", "name": "deadline" }
+        { "type": "address", "name": "tokenOut" }
       ],
       "outputs": [{ "type": "uint256", "name": "totalAmountOut" }]
     },

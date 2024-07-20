@@ -2,7 +2,7 @@ const fs = require('fs');
 const { ethers, upgrades } = require("hardhat");
 
 async function main() {
-    const MultiTokenSwap = await ethers.getContractFactory("MultiTokenSwap");
+    const MultiTokenSwap = await ethers.getContractFactory("MultiTokenSwapV1");
 
     // Deploy the contract as upgradeable
     const multiTokenSwap = await upgrades.deployProxy(MultiTokenSwap, [
