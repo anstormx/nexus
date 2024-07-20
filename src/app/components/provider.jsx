@@ -4,13 +4,13 @@ import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rai
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { polygonAmoy } from 'wagmi/chains';
+import { polygonAmoy, mainnet, arbitrum, optimism, base, avalanche, zkSync } from 'wagmi/chains';
 import { http } from 'wagmi';
 
 const config = getDefaultConfig({
   appName: 'NEXUS',
   projectId: `${process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID}`,
-  chains: [polygonAmoy],
+  chains: [polygonAmoy, mainnet, arbitrum, optimism, base, avalanche, zkSync],
   transports: {
     [polygonAmoy.id]: http(`${process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC_URL}`),
   }

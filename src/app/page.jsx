@@ -1,8 +1,8 @@
 "use client"; 
 
-import Image from "next/image";
-import Header from "./components/Header";
-import Swap from "./components/Swap";
+import Header from "./components/header";
+import Swap from "./components/swap";
+import Footer from "./components/footer";
 
 
 export default function Home() {
@@ -11,6 +11,7 @@ export default function Home() {
     <div>
       <Header />
       <Swap />
+      <Footer />
     </div>
   );
 }
