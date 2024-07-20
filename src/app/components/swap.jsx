@@ -176,7 +176,7 @@ function Swap() {
           onChange={handleNumInputTokensChange}
           style={{ width: "50%" }}
         >
-          {[...Array(6).keys()].map((i) => (
+          {[...Array(4).keys()].map((i) => (
             <Select.Option key={i + 1} value={i + 1}>
               {i + 1}
             </Select.Option>

@@ -6,7 +6,7 @@ async function main() {
 
     // Deploy the contract as upgradeable
     const multiTokenSwap = await upgrades.deployProxy(MultiTokenSwap, [
-        "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Uniswap V3 SwapRouter address on Polygon
+        "0x3dc75e45B0cef52444aF7103EDe4f3FBbDA29C5A", // Uniswap V3 SwapRouter address on Polygon
         3000 // Default fee tier
     ], { kind: 'uups' });
 
