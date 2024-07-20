@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import { ChainId, Token, Fetcher, Route } from "@uniswap/sdk";
+import Image from "next/image";
 
 require("dotenv").config();
 
@@ -25,7 +26,6 @@ function Swap() {
   const [signer, setSigner] = useState(null);
   const [loading, setLoading] = useState(false);
   const [prices, setPrices] = useState({});
-
 
   const { address, isConnected } = useAccount();
 
@@ -55,29 +55,42 @@ function Swap() {
     }
   }, [isMounted]);
 
-  // Fetch prices from Uniswap
   useEffect(() => {
+    // Fetch prices
     const fetchPrices = async () => {
       const tokenPrices = {};
 
-      const USDC = new Token(ChainId.MAINNET, ethers.getAddress("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"), 6);
+      const provider = new ethers.JsonRpcProvider(
+        `${process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC_URL}`
+      );
+
+      const USDC = new Token(
+        800_02,
+        ethers.getAddress("0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"),
+        6
+      );
       console.log(USDC);
 
-      for (let i = 0; i < 2; i++) {
-        const tokenData = tokenList[i];
-        console.log(tokenData);
+      for (let i = 0; i < inputTokens.length; i++) {
+        const tokenData = inputTokens[i].token;
+        console.log("Token data:", tokenData);
 
         const tokenAddress = ethers.getAddress(tokenData.address);
-        console.log(tokenAddress);
-        const token = new Token(tokenData.chainId, tokenAddress, tokenData.decimals);
+        console.log("Token address:", tokenAddress);
+
+        const token = new Token(800_02, tokenAddress, tokenData.decimals);
+        console.log("Token:", token);
+
         try {
-          const pair = await Fetcher.fetchPairData(token, USDC, signer);
+          const pair = await Fetcher.fetchPairData(token, USDC, provider);
+          console.log("Pair:", pair);
+
           if (!pair) {
             console.error(`No pair found for ${tokenData.symbol}`);
             continue;
           }
-          const route = new Route([pair], Fetcher.WETH[token.chainId]);
-          tokenPrices[tokenData.symbol] = route.midPrice.toSignificant(6);
+          const route = new Route([pair], USDC);
+          tokenPrices[i] = route.midPrice.toSignificant(6);
         } catch (error) {
           console.error(`Error fetching price for ${tokenData.symbol}:`, error);
         }
@@ -87,23 +100,26 @@ function Swap() {
       // setPrices(tokenPrices);
     };
 
-    if (isMounted) {
+    if (isMounted && inputTokens.length > 0) {
       fetchPrices();
     }
-  }, [isMounted, signer]);
+  }, [isMounted, inputTokens]);
 
   const handleSwap = async () => {
     setLoading(true);
 
     if (!contract || !isConnected) {
       toast.error("Please connect your wallet first.");
+      setLoading(false);
       return;
     }
 
     toast.info("Swapping tokens. Please wait...");
 
     try {
-      const tokenInAddresses = inputTokens.map((input) => input.token.address);
+      const tokenInAddresses = inputTokens.map((input) =>
+        ethers.getAddress(input.token.address)
+      );
       console.log(tokenInAddresses);
 
       const amountsIn = inputTokens.map((input) => {
@@ -112,7 +128,7 @@ function Swap() {
       });
       console.log(amountsIn);
 
-      const tokenOutAddress = outputToken.address;
+      const tokenOutAddress = ethers.getAddress(outputToken.address);
       console.log(tokenOutAddress);
 
       // Approve spending of tokens
@@ -127,39 +143,50 @@ function Swap() {
 
         console.log(`Approving ${inputTokens[i].token.symbol}`);
 
-        // const approveTx = await tokenContract.approve(
-        //   abi.implementationAddress,
-        //   amountsIn[i]
-        // );
-
-        // await approveTx.wait();
-
-        console.log(`Approved ${inputTokens[i].token.symbol}`);
+        try {
+          const approveTx = await tokenContract.approve(
+            abi.address,
+            amountsIn[i]
+          );
+          await approveTx.wait();
+          console.log(`Approved ${inputTokens[i].token.symbol}`);
+        } catch (error) {
+          console.error(
+            `Error approving ${inputTokens[i].token.symbol}:`,
+            error
+          );
+          toast.error(
+            `Error approving ${inputTokens[i].token.symbol}. Please try again.`
+          );
+          setLoading(false);
+          return;
+        }
       }
 
       // Call the swapTokens function
-      if (contract) {
+      console.log("Swapping tokens");
+      console.log(tokenInAddresses);
+      console.log(amountsIn);
+      console.log(tokenOutAddress);
 
-        console.log("Swapping tokens");
-        console.log(tokenInAddresses);
-        console.log(amountsIn);
-        console.log(tokenOutAddress);
+      const tx = await contract.swapTokens(
+        tokenInAddresses,
+        amountsIn,
+        tokenOutAddress
+      );
+      await tx.wait();
 
-        const tx = await contract.swapTokens(
-          tokenInAddresses,
-          amountsIn,
-          tokenOutAddress
-        );
-        await tx.wait();
+      toast.success("Swap successful!");
 
-        toast.success("Swap successful!");
-        setLoading(false);
-      } else {
-        toast.error("Contract not found");
-        setLoading(false);
-      }
+      // Reset input amounts
+      setInputTokens((prevTokens) =>
+        prevTokens.map((token) => ({ ...token, amount: "" }))
+      );
+      setOutputAmount(null);
     } catch (error) {
-      console.log("Error during swap:", error);
+      console.error("Error during swap:", error);
+      toast.error("Error during swap. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
@@ -186,26 +213,25 @@ function Swap() {
   }
 
   function InputBox({ input, index, handleInputChange, openModal }) {
-    const onChange = (e) => {
-      const value = e.target.value;
-      if (value === "" || /^\d*\.?\d*$/.test(value)) {
-        handleInputChange(index, value);
-      }
-    };
-
     return (
       <div>
         <div className="relative">
           <Input
             placeholder="0"
             value={input.amount}
-            onChange={onChange}
+            onChange={(e) => handleInputChange(index, e.target.value)}
             className="custom-input text-white h-24 mb-1.5 text-3xl rounded-xl placeholder:font-semibold"
           />
           <div
-            className="absolute top-1/2 right-5 -translate-y-1/2 bg-zinc-950 rounded-xl flex items-center gap-1.5 font-semibold text-base px-2 cursor-pointer py-1"
+            className="absolute top-1/2 right-5 -translate-y-1/2 bg-zinc-950 rounded-xl flex items-center gap-1.5 font-semibold text-base px-2 cursor-pointer py-1.5"
             onClick={() => openModal(index)}
           >
+            <Image
+              src={`${input.token.logoURI}`}
+              alt={input.token.symbol}
+              width={24}
+              height={24}
+            />
             {input.token.symbol}
             <DownOutlined />
           </div>
@@ -222,28 +248,28 @@ function Swap() {
     });
   }, []);
 
-  const handleNumInputTokensChange = useCallback((value) => {
-    const newInputTokens = [...inputTokens];
-    while (newInputTokens.length < value) {
-      newInputTokens.push({ token: tokenList[0], amount: "" });
-    }
-    setNumInputTokens(value);
-    setInputTokens(newInputTokens.slice(0, value));
-  }, [inputTokens]);
-  
+  const handleNumInputTokensChange = useCallback(
+    (value) => {
+      const newInputTokens = [...inputTokens];
+      while (newInputTokens.length < value) {
+        newInputTokens.push({ token: tokenList[0], amount: "" });
+      }
+      setNumInputTokens(value);
+      setInputTokens(newInputTokens.slice(0, value));
+    },
+    [inputTokens]
+  );
 
   const settings = (
-    <div className="p-4 bg-zinc-900 rounded-lg">
-      <div>
-        <h3>Number of Input Tokens</h3>
-      </div>
+    <div>
+      <div className="mb-2 text-white">Number of Input Tokens</div>
       <div>
         <Select
           value={numInputTokens}
           onChange={handleNumInputTokensChange}
-          style={{ width: 120 }}
+          style={{ width: "50%" }}
         >
-          {[...Array(5).keys()].map((i) => (
+          {[...Array(6).keys()].map((i) => (
             <Select.Option key={i + 1} value={i + 1}>
               {i + 1}
             </Select.Option>
@@ -277,6 +303,13 @@ function Swap() {
                 key={i}
                 onClick={() => modifyToken(i)}
               >
+                <Image
+                  src={`${e.logoURI}`}
+                  alt={e.symbol}
+                  width={24}
+                  height={24}
+                />
+
                 <div className="ml-2.5">
                   <div className="text-base font-medium">{e.name}</div>
                   <div className="text-sm font-light text-[#ababac]">
@@ -290,7 +323,9 @@ function Swap() {
       </Modal>
       <div className="w-[28%] bg-zinc-950 rounded-3xl mx-auto p-3 mt-10">
         {/* Slippage settings */}
-        <div className="flex justify-end mb-2 mr-2">
+        <div className="flex flex-row w-full justify-between">
+          <div className="text-lg font-semibold mb-2 text-gray-300">Sell</div>
+          <div>
           <Popover
             content={settings}
             trigger="click"
@@ -298,11 +333,11 @@ function Swap() {
           >
             <SettingOutlined className="text-gray-300 hover:text-white transition-all duration-300 hover:rotate-90 cursor-pointer" />
           </Popover>
+          </div>
         </div>
 
         <div className="relative w-full">
           {/* Input token fields */}
-          <div className="text-lg font-semibold mb-2 text-gray-300">Sell</div>
           {inputTokens.slice(0, numInputTokens).map((input, index) => (
             <InputBox
               key={index}

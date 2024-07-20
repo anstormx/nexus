@@ -32,7 +32,6 @@ body {
   scrollbar-color: #c3bfbf #1e1e1e;
 }
 
-/* Swap.css */
 .custom-input.ant-input {
   background-color: #18181b !important; /* This is the zinc-900 color */
   color: white !important;
@@ -49,52 +48,18 @@ body {
   color: #4b5563 !important; /* This is a gray-600 equivalent */
 }
 
-/* In your Swap.css file */
 .custom-popover .ant-popover-inner {
-  background-color: #18181b !important; /* zinc-900 */
-  border: 1px solid #3f3f46 !important; /* zinc-700 for border */
+  background-color: #18181b !important;
+  color: white !important;
+  padding: 6% !important;
 }
 
-.custom-popover .ant-popover-arrow-content::before {
-  background-color: #18181b !important; /* zinc-900 */
-}
-
-.custom-popover .ant-radio-button-wrapper {
-  background-color: #27272a !important; /* zinc-800 */
-  border-color: #3f3f46 !important; /* zinc-700 */
-  color: #d4d4d8 !important; /* zinc-300 */
-}
-
-.custom-popover .ant-radio-button-wrapper:hover {
-  color: #ffffff !important;
-}
-
-.custom-popover .ant-radio-button-wrapper-checked {
-  background-color: #3f3f46 !important; /* zinc-700 */
-  border-color: #52525b !important; /* zinc-600 */
-  color: #ffffff !important;
-}
-
-.custom-popover .ant-radio-button-wrapper:focus-within {
-  box-shadow: none !important;
-}
-
-.custom-popover .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-  border-color: #52525b !important; /* zinc-600 */
-}
-
-.custom-popover .ant-radio-button-wrapper:not(:first-child)::before {
-  background-color: #3f3f46 !important; /* zinc-700 */
-}
-
-.custom-popover h3 {
-  color: #d4d4d8 !important; /* zinc-300 */
-}
 
 .custom-modal .ant-modal-content {
   background-color: #09090b !important; /* This is the hex code for zinc-950 */
   width: 80% !important;
   margin-left: 10% !important;
+  padding: 4%;
 }
 
 .custom-modal .ant-modal-header {
