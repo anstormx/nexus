@@ -2,32 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  color: white;
+  overflow-x: hidden;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+
+/* For Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c3bfbf;
+  border-radius: 4px;
+  border: 2px solid #1e1e1e;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c3bfbf #1e1e1e;
+}
+
+/* Swap.css */
+.custom-input.ant-input {
+  background-color: #18181b !important; /* This is the zinc-900 color */
+  color: white !important;
+  border: none !important;
+}
+
+.custom-input.ant-input:hover,
+.custom-input.ant-input:focus {
+  background-color: #18181b !important;
+  box-shadow: none !important;
+}
+
+.custom-input.ant-input::placeholder {
+  color: #4b5563 !important; /* This is a gray-600 equivalent */
+}
+
+/* In your Swap.css file */
+.custom-popover .ant-popover-inner {
+  background-color: #18181b !important; /* zinc-900 */
+  border: 1px solid #3f3f46 !important; /* zinc-700 for border */
+}
+
+.custom-popover .ant-popover-arrow-content::before {
+  background-color: #18181b !important; /* zinc-900 */
+}
+
+.custom-popover .ant-radio-button-wrapper {
+  background-color: #27272a !important; /* zinc-800 */
+  border-color: #3f3f46 !important; /* zinc-700 */
+  color: #d4d4d8 !important; /* zinc-300 */
+}
+
+.custom-popover .ant-radio-button-wrapper:hover {
+  color: #ffffff !important;
+}
+
+.custom-popover .ant-radio-button-wrapper-checked {
+  background-color: #3f3f46 !important; /* zinc-700 */
+  border-color: #52525b !important; /* zinc-600 */
+  color: #ffffff !important;
+}
+
+.custom-popover .ant-radio-button-wrapper:focus-within {
+  box-shadow: none !important;
+}
+
+.custom-popover .ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  border-color: #52525b !important; /* zinc-600 */
+}
+
+.custom-popover .ant-radio-button-wrapper:not(:first-child)::before {
+  background-color: #3f3f46 !important; /* zinc-700 */
+}
+
+.custom-popover h3 {
+  color: #d4d4d8 !important; /* zinc-300 */
 }

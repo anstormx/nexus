@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <div className="w-full text-center fixed bottom-3 bg-transparent text-white text-base font-bold">
+    <div className="w-full text-center bg-transparent text-white text-base font-bold mb-3">
       made with ❤️ by{" "}
       <Link
         href="https://github.com/anstormx"

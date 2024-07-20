@@ -7,7 +7,7 @@ import Providers from "./components/provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "NEXUS",
+  title: "nexus",
   description: "decentralized exchange.",
 };
 
@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <Providers>
-        <div className="flex flex-col min-h-screen bg-black bg-opacity-90">
+        <div className="flex flex-col min-h-screen bg-zinc-950 bg-opacity-90">
           {children}
           <ToastContainer
             position="bottom-right"
