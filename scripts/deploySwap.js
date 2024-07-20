@@ -22,7 +22,7 @@ async function main() {
     }
 
     //This writes the ABI and address to json file
-    fs.writeFileSync('./src/utils/abi.json', JSON.stringify(data));
+    fs.writeFileSync('./src/utils/SwapV1.json', JSON.stringify(data));
 
     console.log(`MultiTokenSwap proxy deployed to: ${deployedAddress}`);
     console.log(`MultiTokenSwap implementation deployed to: ${implementationAddress}`);

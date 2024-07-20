@@ -6,8 +6,8 @@ async function main() {
 
     // Deploy the contract
     const lp = await LiquidityProvider.deploy(
-        "0xad3dAd15E634bAF2Da50ad7FD9407aa5E5068678", // Uniswap V3 SwapRouter address on Polygon
-        3000 // Default fee tier
+        "0xad3dAd15E634bAF2Da50ad7FD9407aa5E5068678", // Uniswap V3 Factory address on Polygon
+        "0x05eD65Dbde3c5FD660bd327e933D784f6eFD7BB5" // NonfungiblePositionManager address on Polygon
     )
 
     await lp.waitForDeployment();
