@@ -11,9 +11,6 @@ const config = getDefaultConfig({
   appName: 'NEXUS',
   projectId: `${process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID}`,
   chains: [polygonAmoy, mainnet, arbitrum, optimism, base, avalanche, zkSync],
-  transports: {
-    [polygonAmoy.id]: http(`${process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC_URL}`),
-  }
 });
 
 const queryClient = new QueryClient();
