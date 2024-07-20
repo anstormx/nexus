@@ -1,4 +1,4 @@
-import Logo from "../assets/logo.png";
+import Logo from "../logo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";

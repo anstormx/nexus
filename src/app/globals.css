@@ -90,3 +90,21 @@ body {
 .custom-popover h3 {
   color: #d4d4d8 !important; /* zinc-300 */
 }
+
+.custom-modal .ant-modal-content {
+  background-color: #09090b !important; /* This is the hex code for zinc-950 */
+  width: 80% !important;
+  margin-left: 10% !important;
+}
+
+.custom-modal .ant-modal-header {
+  background-color: #09090b !important;
+}
+
+.custom-modal .ant-modal-title {
+  color: white !important;
+}
+
+.custom-modal .ant-modal-close-x {
+  color: white !important;
+}

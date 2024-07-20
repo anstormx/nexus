@@ -17,26 +17,26 @@ export default function RootLayout({ children }) {
       <head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
-        <link rel="icon" href="/assets/logo.png" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="stylesheet" href={inter.url} />
       </head>
       <body className={inter.className}>
         <Providers>
-        <div className="flex flex-col min-h-screen bg-zinc-950 bg-opacity-90">
-          {children}
-          <ToastContainer
-            position="bottom-right"
-            autoClose={3000}
-            newestOnTop={false}
-            hideProgressBar={true}
-            rtl={false}
-            pauseOnFocusLoss
-            pauseOnHover
-            theme="dark"
-            stacked 
-            transition={Flip}
-          />
-        </div>
+          <div className="flex flex-col min-h-screen bg-zinc-950 bg-opacity-90">
+            {children}
+            <ToastContainer
+              position="bottom-right"
+              autoClose={3000}
+              newestOnTop={false}
+              hideProgressBar={true}
+              rtl={false}
+              pauseOnFocusLoss
+              pauseOnHover
+              theme="dark"
+              stacked
+              transition={Flip}
+            />
+          </div>
         </Providers>
       </body>
     </html>
