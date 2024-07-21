@@ -67,17 +67,10 @@ function Swap() {
 
   function decodePriceSqrt(sqrtPriceX96) {
     bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
-
-    // Convert to BigNumber
     const price = new bn(sqrtPriceX96.toString());
-
-    // Square the price
     const squaredPrice = price.times(price);
-
-    // Divide by 2^192
     const denominator = new bn(2).pow(192);
-
-    return squaredPrice.div(denominator);
+    return squaredPrice.div(denominator).toNumber();
   }
 
   // Fetch price of output token
@@ -116,20 +109,31 @@ function Swap() {
           3000
         );
 
+        console.log("Pool address:", poolAddress);
+
         // Get pool contract
         const poolContract = new ethers.Contract(poolAddress, v3pool, signer);
 
-        const [sqrtPriceX96, tick] = await poolContract.slot0();
+        const [sqrtPriceX96] = await poolContract.slot0();
 
         const price = decodePriceSqrt(sqrtPriceX96);
 
         console.log("Price:", price.toString());
 
+        // Determine if we need to invert the price based on token order
+        const isInputToken0 =
+          inputTokenAddress.toLowerCase() < outputTokenAddress.toLowerCase();
+        const adjustedPrice = isInputToken0 ? price : 1 / price;
+
         // Calculate the output amount
-        const outputAmount = price * Number(inputAmount);
+        const inputAmountDecimal = parseFloat(inputAmount);
+        const outputAmount = inputAmountDecimal * adjustedPrice;
+
+        console.log("Input amount:", inputAmount);
+        console.log("Adjusted price:", adjustedPrice);
 
         // Limit the output to 5 digits
-        const formattedOutput = Number(outputAmount.toFixed(7)).toString();
+        const formattedOutput = outputAmount.toFixed(7);
 
         console.log("Output amount:", formattedOutput);
 
@@ -305,16 +309,18 @@ function Swap() {
         return newTokens;
       });
 
-      if (value && liquidityContract) {
+      if (liquidityContract) {
         let totalRawOutput = 0;
         for (let i = 0; i < inputTokens.length; i++) {
           if (inputTokens[i].token.address === outputToken.address) {
-            totalRawOutput += Number(inputTokens[i].amount || "0");
+            totalRawOutput += Number(
+              i === index ? value : inputTokens[i].amount || "0"
+            );
           } else {
             const { rawOutput } = await fetchPrice(
               inputTokens[i].token,
               outputToken,
-              inputTokens[i].amount || "0"
+              i === index ? value : inputTokens[i].amount || "0"
             );
             if (rawOutput !== null) {
               totalRawOutput += rawOutput;
@@ -495,29 +501,18 @@ function Swap() {
 }
 
 function InputBox({ input, index, handleInputChange, openModal }) {
-  const [localAmount, setLocalAmount] = useState(input.amount);
-
   const handleLocalChange = (e) => {
     const newValue = e.target.value;
-    setLocalAmount(newValue);
+    handleInputChange(index, newValue);
   };
-
-  const handleBlur = () => {
-    handleInputChange(index, localAmount);
-  };
-
-  useEffect(() => {
-    setLocalAmount(input.amount);
-  }, [input.amount]);
 
   return (
     <div>
       <div className="relative">
         <Input
           placeholder="0"
-          value={localAmount}
+          value={input.amount}
           onChange={handleLocalChange}
-          onBlur={handleBlur}
           className="custom-input text-white h-24 mb-1.5 text-3xl rounded-xl placeholder:font-semibold"
         />
         <div
