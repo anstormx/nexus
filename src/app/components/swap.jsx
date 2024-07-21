@@ -60,28 +60,31 @@ function Swap() {
   }, [isMounted]);
 
   // Fetch price of output token
-  const fetchPrice = useCallback(async (inputToken, outputToken, inputAmount) => {
-    if (!liquidityContract) return;
+  const fetchPrice = useCallback(
+    async (inputToken, outputToken, inputAmount) => {
+      if (!liquidityContract) return;
 
-    try {
-      const inputTokenAddress = ethers.getAddress(inputToken.address);
-      const outputTokenAddress = ethers.getAddress(outputToken.address);
-      const amountIn = ethers.parseUnits(inputAmount, inputToken.decimals);
+      try {
+        const inputTokenAddress = ethers.getAddress(inputToken.address);
+        const outputTokenAddress = ethers.getAddress(outputToken.address);
+        const amountIn = ethers.parseUnits(inputAmount, inputToken.decimals);
 
-      // const price = await liquidityContract.getAmountOut(
-      //   inputTokenAddress,
-      //   outputTokenAddress,
-      //   amountIn
-      // );
+        // const price = await liquidityContract.getAmountOut(
+        //   inputTokenAddress,
+        //   outputTokenAddress,
+        //   amountIn
+        // );
 
-      const price = 1000000000000*inputAmount;
+        const price = 1000000000000 * inputAmount;
 
-      return ethers.formatUnits(price, outputToken.decimals);
-    } catch (error) {
-      console.error("Error fetching price:", error);
-      return null;
-    }
-  }, [liquidityContract]);
+        return ethers.formatUnits(price, outputToken.decimals);
+      } catch (error) {
+        console.error("Error fetching price:", error);
+        return null;
+      }
+    },
+    [liquidityContract]
+  );
 
   const handleSwap = async () => {
     setLoading(true);
@@ -245,11 +248,10 @@ function Swap() {
   return (
     <div>
       {/* Background and title */}
-      <div className="fixed inset-0 bg-cover bg-center blur-sm z-[-1] bg-[url('https://coincodex.com/en/resources/images//admin/news/5-best-crypto-to-buy/best-crypto-to-buy-before-bitcoin-halving-2023.png:resizeboxcropjpg?1600x900')]"></div>
+      <div className="fixed inset-0 bg-cover bg-center blur-sm z-[-1] bg-[url('https://coincodex.com/en/resources/images//admin/news/5-best-crypto-to-buy/best-crypto-to-buy-before-bitcoin-halving-2023.png:resizeboxcropjpg?1600x900')] animate-background-move"></div>{" "}
       <div className="text-center text-6xl font-semibold mt-[2%]">
         Swap anytime, <br /> anywhere.
       </div>
-
       {/* Token selection modal */}
       <Modal
         open={isOpen}
@@ -281,7 +283,6 @@ function Swap() {
           ))}
         </div>
       </Modal>
-
       {/* Main swap interface */}
       <div className="w-[28%] bg-zinc-950 rounded-3xl mx-auto p-3 mt-10">
         {/* Slippage settings */}
@@ -342,7 +343,6 @@ function Swap() {
           {isConnected ? "Swap" : "Connect Wallet"}
         </div>
       </div>
-
       {/* Footer */}
       <div>
         <p className="text-gray-400 text-base mt-6 text-center mb-[5.8%]">

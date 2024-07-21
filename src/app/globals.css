@@ -68,6 +68,7 @@ body {
 
 .custom-modal .ant-modal-title {
   color: white !important;
+  font-size: x-large !important;
 }
 
 .custom-modal .ant-modal-close-x {
