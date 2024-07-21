@@ -20,7 +20,7 @@
     "address": "0x2eb068551d404E11aE2f294DB88BD12F5F35a09C",
     "name": "USD Coin",
     "symbol": "USDC",
-    "decimals": 6,
+    "decimals": 18,
     "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174/logo.png"
   },
   {

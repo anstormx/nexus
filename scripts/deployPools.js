@@ -2,9 +2,9 @@
 const DAI_ADDRESS = "0x9cB75FECA0F92E29518eAcAF78cB81D642B2cc50";
 const USDC_ADDRESS = "0x2eb068551d404E11aE2f294DB88BD12F5F35a09C";
 const LINK_ADDRESS = "0xF222cE6a36A28560ADeC7AD7193e4f89a3D27ca4";
+const WETH_ADDRESS = "0x53180AfA0de66EFe024D38B8715D1d48c1B3c1B7";
 
 // Uniswap contract address
-const WETH_ADDRESS = "0x53180AfA0de66EFe024D38B8715D1d48c1B3c1B7";
 const FACTORY_ADDRESS = "0xad3dAd15E634bAF2Da50ad7FD9407aa5E5068678";
 const SWAP_ROUTER_ADDRESS = "0x3dc75e45B0cef52444aF7103EDe4f3FBbDA29C5A";
 const NFT_DESCRIPTOR_ADDRESS = "0xff6dd472749B858b9265F0a471DB66C39B03421c";
@@ -30,12 +30,13 @@ function encodePriceSqrt(reserve1, reserve0) {
 }
 
 async function main() {
-  //   const [owner] = await ethers.getSigners();
+  const [owner] = await ethers.getSigners();
 
   // Get the LiquidityProvider contract instance
   const liquidityProvider = await ethers.getContractAt(
     "LiquidityProvider",
-    LIQUIDITY_PROVIDER_ADDRESS
+    LIQUIDITY_PROVIDER_ADDRESS,
+    owner
   );
 
   // // Create a pool for DAI/USDC with an initial price of 1:1
@@ -50,11 +51,19 @@ async function main() {
   // await liquidityProvider.createPool(LINK_ADDRESS, USDC_ADDRESS, linkUsdcPrice);
   // console.log("LINK/USDC pool created successfully.");
 
-  console.log("Creating LINK/DAI pool...");
-  const linkDaiPrice = encodePriceSqrt(20, 1); // Assuming 1 LINK = 20 DAI
-  await liquidityProvider.createPool(LINK_ADDRESS, DAI_ADDRESS, linkDaiPrice);
-  console.log("LINK/DAI pool created successfully.");
-  
+  // console.log("Creating LINK/DAI pool...");
+  // const linkDaiPrice = encodePriceSqrt(20, 1); // Assuming 1 LINK = 20 DAI
+  // await liquidityProvider.createPool(LINK_ADDRESS, DAI_ADDRESS, linkDaiPrice);
+  // console.log("LINK/DAI pool created successfully.");
+
+  // console.log("Creating WETH pool...");
+  // const wethDaiprice = encodePriceSqrt(1, 3); // Assuming 1 WETH = 3 DAI
+  // const wethUSDCprice = encodePriceSqrt(1, 4); // Assuming 1 WETH = 4 USDC
+  // const wethLinkprice = encodePriceSqrt(1, 2); // Assuming 1 WETH = 2 LINK
+  // await liquidityProvider.createPool(WETH_ADDRESS, DAI_ADDRESS, wethDaiprice);
+  // await liquidityProvider.createPool(WETH_ADDRESS, USDC_ADDRESS, wethUSDCprice);
+  // await liquidityProvider.createPool(WETH_ADDRESS, LINK_ADDRESS, wethLinkprice);
+  // console.log("WETH pool created successfully.");
 }
 
 main()

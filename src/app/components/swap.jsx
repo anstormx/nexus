@@ -2,13 +2,15 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { Input, Popover, Modal, Select } from "antd";
 import { DownOutlined, SettingOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
-import { ethers } from "ethers";
+import { ethers, N } from "ethers";
 import { toast } from "react-toastify";
 import Image from "next/image";
+import bn from "bignumber.js";
 
 import tokenList from "../../utils/tokenList.json";
 import SwapV1 from "../../utils/SwapV1.json";
 import liquidity from "../../utils/liquidity.json";
+import v3pool from "../../utils/V3poolABI.json";
 import erc20 from "../../utils/dai.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import Footer from "./footer";
@@ -63,32 +65,87 @@ function Swap() {
     }
   }, [isMounted]);
 
+  function decodePriceSqrt(sqrtPriceX96) {
+    bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
+
+    // Convert to BigNumber
+    const price = new bn(sqrtPriceX96.toString());
+
+    // Square the price
+    const squaredPrice = price.times(price);
+
+    // Divide by 2^192
+    const denominator = new bn(2).pow(192);
+
+    return squaredPrice.div(denominator);
+  }
+
   // Fetch price of output token
   const fetchPrice = useCallback(
     async (inputToken, outputToken, inputAmount) => {
-      if (!swapContract) return;
+      if (
+        !liquidityContract ||
+        !inputAmount ||
+        !inputToken ||
+        !outputToken ||
+        !signer
+      ) {
+        return null;
+      }
+
+      if (inputToken.address === outputToken.address) {
+        return inputAmount;
+      }
 
       try {
         const inputTokenAddress = ethers.getAddress(inputToken.address);
         const outputTokenAddress = ethers.getAddress(outputToken.address);
-        const amountIn = ethers.parseUnits(inputAmount, inputToken.decimals);
 
-        const quotedAmountOut = await swapContract.getAmountOut(
-          inputTokenAddress,
-          outputTokenAddress,
-          amountIn
+        // Get pool address using the factory from the LiquidityProvider contract
+        const factory = await liquidityContract.factory();
+        const factoryContract = new ethers.Contract(
+          factory,
+          ["function getPool(address,address,uint24) view returns (address)"],
+          signer
         );
 
-        // const price = 1000000000000 * inputAmount;
+        // Get pool address
+        const poolAddress = await factoryContract.getPool(
+          inputTokenAddress,
+          outputTokenAddress,
+          3000
+        );
 
-        return ethers.formatUnits(quotedAmountOut, outputToken.decimals);
+        // Get pool contract
+        const poolContract = new ethers.Contract(poolAddress, v3pool, signer);
+
+        const [sqrtPriceX96, tick] = await poolContract.slot0();
+
+        const price = decodePriceSqrt(sqrtPriceX96);
+
+        console.log("Price:", price.toString());
+
+        // Calculate the output amount
+        const outputAmount = price * Number(inputAmount);
+
+        // Limit the output to 5 digits
+        const formattedOutput = Number(outputAmount.toFixed(7)).toString();
+
+        console.log("Output amount:", formattedOutput);
+
+        // if (formattedOutput === "0") {
+        //   toast.error("Please input a higher amount.");
+        //   return { formattedOutput: null, rawOutput: null };
+        // }
+
+        return { formattedOutput, rawOutput: outputAmount };
       } catch (error) {
         toast.error("Error fetching price. Please try again.");
         console.log("Error fetching price:", error);
         return null;
       }
     },
-    [swapContract]
+    [signer, liquidityContract]
   );
 
   const handleSwap = async () => {
@@ -130,8 +187,8 @@ function Swap() {
             setLoading(false);
             return;
           }
-    
-          const amountIn = ethers.parseUnits(inputTokens[i].amount, decimals)
+
+          const amountIn = ethers.parseUnits(inputTokens[i].amount, decimals);
 
           if (balance < amountIn) {
             toast.error(
@@ -140,11 +197,18 @@ function Swap() {
             setLoading(false);
             return;
           } else {
-            toast.success(`Sufficient balance of ${inputTokens[i].token.symbol}`);
+            toast.success(
+              `Sufficient balance of ${inputTokens[i].token.symbol}`
+            );
           }
         } catch (error) {
-          toast.error(`Insufficient balance for ${inputTokens[i].token.symbol}`);
-          console.log(`Error checking balance of ${inputTokens[i].token.symbol}:`, error);
+          toast.error(
+            `Insufficient balance for ${inputTokens[i].token.symbol}`
+          );
+          console.log(
+            `Error checking balance of ${inputTokens[i].token.symbol}:`,
+            error
+          );
           setLoading(false);
           return;
         }
@@ -163,6 +227,9 @@ function Swap() {
         );
 
         try {
+          console.log("Approving spending of tokens");
+          console.log("Token address:", tokenInAddresses[i]);
+          console.log("Amount:", amountsIn[i]);
           const approveTx = await tokenContract.approve(
             SwapV1.address,
             amountsIn[i],
@@ -239,12 +306,25 @@ function Swap() {
       });
 
       if (value && liquidityContract) {
-        const price = await fetchPrice(
-          inputTokens[index].token,
-          outputToken,
-          value
-        );
-        setOutputAmount(price);
+        let totalRawOutput = 0;
+        for (let i = 0; i < inputTokens.length; i++) {
+          if (inputTokens[i].token.address === outputToken.address) {
+            totalRawOutput += Number(inputTokens[i].amount || "0");
+          } else {
+            const { rawOutput } = await fetchPrice(
+              inputTokens[i].token,
+              outputToken,
+              inputTokens[i].amount || "0"
+            );
+            if (rawOutput !== null) {
+              totalRawOutput += rawOutput;
+            }
+          }
+        }
+        const formattedTotalOutput = Number(
+          totalRawOutput.toFixed(6)
+        ).toString();
+        setOutputAmount(formattedTotalOutput);
       } else {
         setOutputAmount(null);
       }
@@ -253,15 +333,30 @@ function Swap() {
   );
 
   const handleNumInputTokensChange = useCallback(
-    (value) => {
+    async (value) => {
       const newInputTokens = [...inputTokens];
       while (newInputTokens.length < value) {
         newInputTokens.push({ token: tokenList[0], amount: "" });
       }
       setNumInputTokens(value);
       setInputTokens(newInputTokens.slice(0, value));
+
+      // Recalculate total output
+      let totalRawOutput = 0;
+      for (let i = 0; i < value; i++) {
+        const { rawOutput } = await fetchPrice(
+          newInputTokens[i].token,
+          outputToken,
+          newInputTokens[i].amount || "0"
+        );
+        if (rawOutput !== null) {
+          totalRawOutput += rawOutput;
+        }
+      }
+      const formattedTotalOutput = Number(totalRawOutput.toFixed(6)).toString();
+      setOutputAmount(formattedTotalOutput);
     },
-    [inputTokens]
+    [inputTokens, outputToken, fetchPrice]
   );
 
   const settings = useMemo(
@@ -274,7 +369,7 @@ function Swap() {
             onChange={handleNumInputTokensChange}
             style={{ width: "50%" }}
           >
-            {[...Array(4).keys()].map((i) => (
+            {[...Array(3).keys()].map((i) => (
               <Select.Option key={i + 1} value={i + 1}>
                 {i + 1}
               </Select.Option>
