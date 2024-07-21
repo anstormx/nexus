@@ -36,13 +36,17 @@ async function main() {
   console.log(`LINK balance: ${ethers.formatUnits(linkBalance, 18)}`);
 
   // Approve tokens
-  const daiAmount = ethers.parseUnits("1000", 18);
-  const usdcAmount = ethers.parseUnits("1000", 18);
-  const linkAmount = ethers.parseUnits("1000", 18);
-  const usdcAmountForLink = ethers.parseUnits("20000", 18); // Assuming 1 LINK = 20 USDC
+  const daiAmount = ethers.parseUnits("10000", 18);
+  const usdcAmount = ethers.parseUnits("10000", 18);
+  const linkAmount = ethers.parseUnits("10000", 18);
+  const usdcAmountForLink = ethers.parseUnits("200000", 18); // Assuming 1 LINK = 20 USDC
+  const daiAmountforLink = ethers.parseUnits("200000", 18); // Assuming 1 LINK = 20 DAI
 
   console.log("Approving DAI...");
-  await daiContract.approve(LIQUIDITY_PROVIDER_ADDRESS, daiAmount);
+  await daiContract.approve(
+    LIQUIDITY_PROVIDER_ADDRESS,
+    daiAmount + daiAmountforLink
+  );
   console.log("Approving USDC...");
   await usdcContract.approve(
     LIQUIDITY_PROVIDER_ADDRESS,
@@ -60,33 +64,11 @@ async function main() {
   const tickUpper = 887220; // Wider range
 
   try {
-    // const tx = await liquidityProvider.addLiquidity(
-    //   DAI_ADDRESS,
-    //   USDC_ADDRESS,
-    //   daiAmount,
-    //   usdcAmount,
-    //   tickLower,
-    //   tickUpper,
-    //   { gasLimit: 5000000 }
-    // );
-    // console.log("Transaction hash:", tx.hash);
-    // const receipt = await tx.wait();
-    // console.log("Transaction was mined in block", receipt.blockNumber);
-    // console.log("Liquidity added to DAI/USDC pool successfully.");
-    //     DAI balance: 1000000.0
-    // USDC balance: 1000000.0
-    // Approving DAI...
-    // Approving USDC...
-    // Adding liquidity to DAI/USDC pool...
-    // Transaction hash: 0x2128c8dafa58ea761e6e73e2e55e9212f6308f7629531fcc13a9af9122f33a30
-    // Transaction was mined in block 9729644
-    // Liquidity added to DAI/USDC pool successfully.
-
     const tx = await liquidityProvider.addLiquidity(
-      LINK_ADDRESS,
+      DAI_ADDRESS,
       USDC_ADDRESS,
-      linkAmount,
-      usdcAmountForLink,
+      daiAmount,
+      usdcAmount,
       tickLower,
       tickUpper,
       { gasLimit: 5000000 }
@@ -94,17 +76,45 @@ async function main() {
     console.log("Transaction hash:", tx.hash);
     const receipt = await tx.wait();
     console.log("Transaction was mined in block", receipt.blockNumber);
-    console.log("Liquidity added to LINK/USDC pool successfully.");
-    // DAI balance: 999000.0
-    // USDC balance: 999000.0
-    // LINK balance: 1000000.0
-    // Approving DAI...
-    // Approving USDC...
-    // Approving LINK...
+    console.log("Liquidity added to DAI/USDC pool successfully.");
+    // Transaction hash: 0x2128c8dafa58ea761e6e73e2e55e9212f6308f7629531fcc13a9af9122f33a30
+    // Transaction was mined in block 9729644
+    // Liquidity added to DAI/USDC pool successfully.
+
+    // const tx = await liquidityProvider.addLiquidity(
+    //   LINK_ADDRESS,
+    //   USDC_ADDRESS,
+    //   linkAmount,
+    //   usdcAmountForLink,
+    //   tickLower,
+    //   tickUpper,
+    //   { gasLimit: 5000000 }
+    // );
+    // console.log("Transaction hash:", tx.hash);
+    // const receipt = await tx.wait();
+    // console.log("Transaction was mined in block", receipt.blockNumber);
+    // console.log("Liquidity added to LINK/USDC pool successfully.");
     // Adding liquidity to LINK/USDC pool...
     // Transaction hash: 0x6ee7305abe051bb4f7113fd531caeeb78a9ab6f36cbc87e296a82b2f8c6b1a09
     // Transaction was mined in block 9729891
     // Liquidity added to LINK/USDC pool successfully.
+
+    // const tx = await liquidityProvider.addLiquidity(
+    //   LINK_ADDRESS,
+    //   DAI_ADDRESS,
+    //   linkAmount,
+    //   daiAmountforLink,
+    //   tickLower,
+    //   tickUpper,
+    //   { gasLimit: 5000000 }
+    // );
+    // console.log("Transaction hash:", tx.hash);
+    // const receipt = await tx.wait();
+    // console.log("Transaction was mined in block", receipt.blockNumber);
+    // console.log("Liquidity added to LINK/DAI pool successfully.");
+    //     Transaction hash: 0x9d2bcb680b8d8f8b6f38bd4ad19440004a3c8c1a53724a4b70289f4f4bc1f89d
+    // Transaction was mined in block 9745401
+    // Liquidity added to LINK/DAI pool successfully.
   } catch (error) {
     console.error("Error adding liquidity:", error.message);
     if (error.data) {

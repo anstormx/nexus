@@ -9,6 +9,7 @@ import Image from "next/image";
 import tokenList from "../../utils/tokenList.json";
 import SwapV1 from "../../utils/SwapV1.json";
 import liquidity from "../../utils/liquidity.json";
+import erc20 from "../../utils/dai.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import Footer from "./footer";
 
@@ -32,25 +33,28 @@ function Swap() {
   useEffect(() => {
     const initContract = async () => {
       if (typeof window.ethereum !== "undefined") {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        setSigner(signer);
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length > 0) {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          setSigner(signer);
 
-        const multiTokenSwapContract = new ethers.Contract(
-          SwapV1.address,
-          SwapV1.abi,
-          signer
-        );
-        setSwapContract(multiTokenSwapContract);
+          const multiTokenSwapContract = new ethers.Contract(
+            SwapV1.address,
+            SwapV1.abi,
+            signer
+          );
+          setSwapContract(multiTokenSwapContract);
 
-        const liquidityContract = new ethers.Contract(
-          liquidity.address,
-          liquidity.abi,
-          signer
-        );
-        setLiquidityContract(liquidityContract);
-
-        console.log("Contract initialized");
+          const liquidityContract = new ethers.Contract(
+            liquidity.address,
+            liquidity.abi,
+            signer
+          );
+          setLiquidityContract(liquidityContract);
+        }
       }
     };
 
@@ -62,28 +66,29 @@ function Swap() {
   // Fetch price of output token
   const fetchPrice = useCallback(
     async (inputToken, outputToken, inputAmount) => {
-      if (!liquidityContract) return;
+      if (!swapContract) return;
 
       try {
         const inputTokenAddress = ethers.getAddress(inputToken.address);
         const outputTokenAddress = ethers.getAddress(outputToken.address);
         const amountIn = ethers.parseUnits(inputAmount, inputToken.decimals);
 
-        // const price = await liquidityContract.getAmountOut(
-        //   inputTokenAddress,
-        //   outputTokenAddress,
-        //   amountIn
-        // );
+        const quotedAmountOut = await swapContract.getAmountOut(
+          inputTokenAddress,
+          outputTokenAddress,
+          amountIn
+        );
 
-        const price = 1000000000000 * inputAmount;
+        // const price = 1000000000000 * inputAmount;
 
-        return ethers.formatUnits(price, outputToken.decimals);
+        return ethers.formatUnits(quotedAmountOut, outputToken.decimals);
       } catch (error) {
-        console.error("Error fetching price:", error);
+        toast.error("Error fetching price. Please try again.");
+        console.log("Error fetching price:", error);
         return null;
       }
     },
-    [liquidityContract]
+    [swapContract]
   );
 
   const handleSwap = async () => {
@@ -107,6 +112,44 @@ function Swap() {
         return ethers.parseUnits(input.amount, input.token.decimals);
       });
 
+      // Check balances
+      for (let i = 0; i < inputTokens.length; i++) {
+        const tokenContract = new ethers.Contract(
+          tokenInAddresses[i],
+          erc20.abi,
+          signer
+        );
+
+        try {
+          const balance = await tokenContract.balanceOf(address);
+          const decimals = await tokenContract.decimals();
+          const symbol = await tokenContract.symbol();
+
+          if (amountsIn[i] === BigInt(0)) {
+            toast.error(`Please enter an amount for ${symbol}`);
+            setLoading(false);
+            return;
+          }
+    
+          const amountIn = ethers.parseUnits(inputTokens[i].amount, decimals)
+
+          if (balance < amountIn) {
+            toast.error(
+              `Insufficient balance for ${inputTokens[i].token.symbol}`
+            );
+            setLoading(false);
+            return;
+          } else {
+            toast.success(`Sufficient balance of ${inputTokens[i].token.symbol}`);
+          }
+        } catch (error) {
+          toast.error(`Insufficient balance for ${inputTokens[i].token.symbol}`);
+          console.log(`Error checking balance of ${inputTokens[i].token.symbol}:`, error);
+          setLoading(false);
+          return;
+        }
+      }
+
       const tokenOutAddress = ethers.getAddress(outputToken.address);
 
       // Approve spending of tokens
@@ -122,14 +165,12 @@ function Swap() {
         try {
           const approveTx = await tokenContract.approve(
             SwapV1.address,
-            amountsIn[i]
+            amountsIn[i],
+            { gasLimit: ethers.parseUnits("500000", "wei") }
           );
           await approveTx.wait();
         } catch (error) {
-          console.error(
-            `Error approving ${inputTokens[i].token.symbol}:`,
-            error
-          );
+          console.log(`Error approving ${inputTokens[i].token.symbol}:`, error);
           toast.error(
             `Error approving ${inputTokens[i].token.symbol}. Please try again.`
           );
@@ -137,12 +178,14 @@ function Swap() {
           return;
         }
       }
+      console.log("Approved spending of tokens");
 
       // Call the swapTokens function
       const tx = await swapContract.swapTokens(
         tokenInAddresses,
         amountsIn,
-        tokenOutAddress
+        tokenOutAddress,
+        { gasLimit: ethers.parseUnits("500000", "wei") }
       );
       await tx.wait();
 

@@ -38,17 +38,23 @@ async function main() {
     LIQUIDITY_PROVIDER_ADDRESS
   );
 
-  // Create a pool for DAI/USDC with an initial price of 1:1
-  const daiusdcPrice = encodePriceSqrt(1, 1);
-  console.log("Creating DAI/USDC pool...");
-  await liquidityProvider.createPool(DAI_ADDRESS, USDC_ADDRESS, daiusdcPrice);
+  // // Create a pool for DAI/USDC with an initial price of 1:1
+  // const daiusdcPrice = encodePriceSqrt(1, 1);
+  // console.log("Creating DAI/USDC pool...");
+  // await liquidityProvider.createPool(DAI_ADDRESS, USDC_ADDRESS, daiusdcPrice);
 
-  console.log("DAI/USDC pool created successfully.");
+  // console.log("DAI/USDC pool created successfully.");
 
-  console.log("Creating LINK/USDC pool...");
-  const linkUsdcPrice = encodePriceSqrt(20, 1); // Assuming 1 LINK = 20 USDC
-  await liquidityProvider.createPool(LINK_ADDRESS, USDC_ADDRESS, linkUsdcPrice);
-  console.log("LINK/USDC pool created successfully.");
+  // console.log("Creating LINK/USDC pool...");
+  // const linkUsdcPrice = encodePriceSqrt(20, 1); // Assuming 1 LINK = 20 USDC
+  // await liquidityProvider.createPool(LINK_ADDRESS, USDC_ADDRESS, linkUsdcPrice);
+  // console.log("LINK/USDC pool created successfully.");
+
+  console.log("Creating LINK/DAI pool...");
+  const linkDaiPrice = encodePriceSqrt(20, 1); // Assuming 1 LINK = 20 DAI
+  await liquidityProvider.createPool(LINK_ADDRESS, DAI_ADDRESS, linkDaiPrice);
+  console.log("LINK/DAI pool created successfully.");
+  
 }
 
 main()
