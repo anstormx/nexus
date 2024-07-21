@@ -5,7 +5,19 @@ require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.24",
+  solidity: {
+    compilers: [
+      {
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
   networks: {
     polygonAmoy: {
       url: `${process.env.NEXT_PUBLIC_POLYGON_AMOY_RPC_URL}`,

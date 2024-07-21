@@ -7,7 +7,8 @@ import { toast } from "react-toastify";
 import Image from "next/image";
 
 import tokenList from "../../utils/tokenList.json";
-import abi from "../../utils/abi.json";
+import SwapV1 from "../../utils/SwapV1.json";
+import liquidity from "../../utils/liquidity.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import Footer from "./footer";
 
@@ -20,7 +21,8 @@ function Swap() {
   ]);
   const [outputToken, setOutputToken] = useState(tokenList[2]);
   const [outputAmount, setOutputAmount] = useState(null);
-  const [contract, setContract] = useState(null);
+  const [swapContract, setSwapContract] = useState(null);
+  const [liquidityContract, setLiquidityContract] = useState(null);
   const [signer, setSigner] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -35,11 +37,19 @@ function Swap() {
         setSigner(signer);
 
         const multiTokenSwapContract = new ethers.Contract(
-          abi.address,
-          abi.abi,
+          SwapV1.address,
+          SwapV1.abi,
           signer
         );
-        setContract(multiTokenSwapContract);
+        setSwapContract(multiTokenSwapContract);
+
+        const liquidityContract = new ethers.Contract(
+          liquidity.address,
+          liquidity.abi,
+          signer
+        );
+        setLiquidityContract(liquidityContract);
+
         console.log("Contract initialized");
       }
     };
@@ -49,10 +59,34 @@ function Swap() {
     }
   }, [isMounted]);
 
+  // Fetch price of output token
+  const fetchPrice = useCallback(async (inputToken, outputToken, inputAmount) => {
+    if (!liquidityContract) return;
+
+    try {
+      const inputTokenAddress = ethers.getAddress(inputToken.address);
+      const outputTokenAddress = ethers.getAddress(outputToken.address);
+      const amountIn = ethers.parseUnits(inputAmount, inputToken.decimals);
+
+      // const price = await liquidityContract.getAmountOut(
+      //   inputTokenAddress,
+      //   outputTokenAddress,
+      //   amountIn
+      // );
+
+      const price = 1000000000000*inputAmount;
+
+      return ethers.formatUnits(price, outputToken.decimals);
+    } catch (error) {
+      console.error("Error fetching price:", error);
+      return null;
+    }
+  }, [liquidityContract]);
+
   const handleSwap = async () => {
     setLoading(true);
 
-    if (!contract || !isConnected) {
+    if (!swapContract || !isConnected) {
       toast.error("Please connect your wallet first.");
       setLoading(false);
       return;
@@ -84,7 +118,7 @@ function Swap() {
 
         try {
           const approveTx = await tokenContract.approve(
-            abi.address,
+            SwapV1.address,
             amountsIn[i]
           );
           await approveTx.wait();
@@ -102,7 +136,7 @@ function Swap() {
       }
 
       // Call the swapTokens function
-      const tx = await contract.swapTokens(
+      const tx = await swapContract.swapTokens(
         tokenInAddresses,
         amountsIn,
         tokenOutAddress
@@ -129,31 +163,48 @@ function Swap() {
     setIsOpen(true);
   }, []);
 
-  const modifyToken = useCallback((i) => {
-    setIsOpen(false);
-    if (changeToken === "output") {
-      setOutputToken(tokenList[i]);
-      setOutputAmount("");
-    } else {
+  const modifyToken = useCallback(
+    (i) => {
+      setIsOpen(false);
+      if (changeToken === "output") {
+        setOutputToken(tokenList[i]);
+        setOutputAmount("");
+      } else {
+        setInputTokens((prevTokens) => {
+          const newTokens = [...prevTokens];
+          newTokens[changeToken] = {
+            ...newTokens[changeToken],
+            token: tokenList[i],
+            amount: "",
+          };
+          return newTokens;
+        });
+      }
+    },
+    [changeToken]
+  );
+
+  const handleInputChange = useCallback(
+    async (index, value) => {
       setInputTokens((prevTokens) => {
         const newTokens = [...prevTokens];
-        newTokens[changeToken] = {
-          ...newTokens[changeToken],
-          token: tokenList[i],
-          amount: "",
-        };
+        newTokens[index] = { ...newTokens[index], amount: value };
         return newTokens;
       });
-    }
-  }, [changeToken]);
 
-  const handleInputChange = useCallback((index, value) => {
-    setInputTokens((prevTokens) => {
-      const newTokens = [...prevTokens];
-      newTokens[index] = { ...newTokens[index], amount: value };
-      return newTokens;
-    });
-  }, []);
+      if (value && liquidityContract) {
+        const price = await fetchPrice(
+          inputTokens[index].token,
+          outputToken,
+          value
+        );
+        setOutputAmount(price);
+      } else {
+        setOutputAmount(null);
+      }
+    },
+    [inputTokens, outputToken, liquidityContract, fetchPrice]
+  );
 
   const handleNumInputTokensChange = useCallback(
     (value) => {
@@ -167,24 +218,27 @@ function Swap() {
     [inputTokens]
   );
 
-  const settings = useMemo(() => (
-    <div>
-      <div className="mb-2 text-white">Number of Input Tokens</div>
+  const settings = useMemo(
+    () => (
       <div>
-        <Select
-          value={numInputTokens}
-          onChange={handleNumInputTokensChange}
-          style={{ width: "50%" }}
-        >
-          {[...Array(4).keys()].map((i) => (
-            <Select.Option key={i + 1} value={i + 1}>
-              {i + 1}
-            </Select.Option>
-          ))}
-        </Select>
+        <div className="mb-2 text-white">Number of Input Tokens</div>
+        <div>
+          <Select
+            value={numInputTokens}
+            onChange={handleNumInputTokensChange}
+            style={{ width: "50%" }}
+          >
+            {[...Array(4).keys()].map((i) => (
+              <Select.Option key={i + 1} value={i + 1}>
+                {i + 1}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
       </div>
-    </div>
-  ), [numInputTokens, handleNumInputTokensChange]);
+    ),
+    [numInputTokens, handleNumInputTokensChange]
+  );
 
   if (!isMounted) return null;
 
