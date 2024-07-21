@@ -8,9 +8,9 @@ import Image from "next/image";
 import bn from "bignumber.js";
 
 import tokenList from "../../utils/tokenList.json";
-import SwapV1 from "../../utils/SwapV1.json";
+import SwapV1 from "../../utils/swapV1.json";
 import liquidity from "../../utils/liquidity.json";
-import v3pool from "../../utils/V3poolABI.json";
+import v3pool from "../../utils/v3pool.json";
 import erc20 from "../../utils/dai.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import Footer from "./footer";
@@ -132,15 +132,9 @@ function Swap() {
         console.log("Input amount:", inputAmount);
         console.log("Adjusted price:", adjustedPrice);
 
-        // Limit the output to 5 digits
-        const formattedOutput = outputAmount.toFixed(7);
+        const formattedOutput = outputAmount.toFixed(6);
 
         console.log("Output amount:", formattedOutput);
-
-        // if (formattedOutput === "0") {
-        //   toast.error("Please input a higher amount.");
-        //   return { formattedOutput: null, rawOutput: null };
-        // }
 
         return { formattedOutput, rawOutput: outputAmount };
       } catch (error) {

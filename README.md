@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## NEXUS
 
-## Getting Started
+Nexus is a web application built with Next.js and integrates with Blockchain using ethers.js. It allows users to:
 
-First, run the development server:
+* Select input and output tokens
+* Enter the amount of input tokens to swap
+* See the estimated amount of output tokens received (based on current market prices)
+* Initiate a swap transaction (requires a connected wallet)
+
+### Features
+
+* Supports multiple input tokens
+* Fetches price data from a liquidity pool contract
+* Provides a user-friendly interface for selecting tokens and entering amounts
+* Integrates with a wallet connector for signing transactions
+
+### Dependencies
+
+This component relies on several external libraries:
+
+* `react`
+* `next` 
+* `antd` (for UI components)
+* `@ant-design/icons` (for icons)
+* `wagmi` (for wallet connection)
+* `ethers` (for interacting with Ethereum blockchain)
+* `react-toastify` (for displaying notifications)
+* `next/image` (for displaying token logos)
+* `bignumber.js` (for handling large numbers)
+
+### Usage
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/anstormx/nexus.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install the required dependencies:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm i
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+3. Build and start the project:
 
-## Learn More
+```javascript
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+* `tokenList`: An array of objects containing token information (name, symbol, logoURI, address, decimals)
+* `SwapV1`: The address of the swap contract (if using a custom contract)
+* `liquidity`: The address and ABI of the liquidity pool contract
+* `v3pool`: The ABI of the V3 pool contract
+* `dai, link usdc, weth`: The ABI and address of minted ERC20 tokens
