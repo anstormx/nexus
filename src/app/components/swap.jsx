@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { Input, Popover, Modal, Select } from "antd";
 import { DownOutlined, SettingOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
-import { ethers, N } from "ethers";
+import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import bn from "bignumber.js";
@@ -148,12 +148,6 @@ function Swap() {
   const handleSwap = async () => {
     setLoading(true);
 
-    if (!swapContract || !isConnected) {
-      toast.error("Please connect your wallet first.");
-      setLoading(false);
-      return;
-    }
-
     toast.info("Swapping tokens. Please wait...");
 
     try {
@@ -224,15 +218,15 @@ function Swap() {
         );
 
         try {
-          console.log("Approving spending of tokens");
-          console.log("Token address:", tokenInAddresses[i]);
-          console.log("Amount:", amountsIn[i]);
+          console.log("Approving spending of token for", inputTokens[i].token);
           const approveTx = await tokenContract.approve(
             SwapV1.address,
             amountsIn[i],
             { gasLimit: ethers.parseUnits("500000", "wei") }
           );
           await approveTx.wait();
+
+          toast.success(`Approved spending of ${inputTokens[i].token.symbol}`);
         } catch (error) {
           console.log(`Error approving ${inputTokens[i].token.symbol}:`, error);
           toast.error(
@@ -460,7 +454,7 @@ function Swap() {
 
         {/* Swap button */}
         <div
-          className={`flex justify-center items-center bg-pink-500 w-full h-[55px] text-xl rounded-xl font-bold transition duration-200 ${
+          className={`flex justify-center items-center bg-pink-500 w-full h-[55px] text-xl rounded-xl font-bold transition duration-300 ${
             !inputTokens.some((input) => input.amount) ||
             !isConnected ||
             loading
@@ -496,7 +490,10 @@ function Swap() {
 function InputBox({ input, index, handleInputChange, openModal }) {
   const handleLocalChange = (e) => {
     const newValue = e.target.value;
-    handleInputChange(index, newValue);
+    // Only allow numbers and decimal point
+    if (/^\d*\.?\d*$/.test(newValue) || newValue === "") {
+      handleInputChange(index, newValue);
+    }
   };
 
   return (
@@ -507,6 +504,8 @@ function InputBox({ input, index, handleInputChange, openModal }) {
           value={input.amount}
           onChange={handleLocalChange}
           className="custom-input text-white h-24 mb-1.5 text-3xl rounded-xl placeholder:font-semibold"
+          type="text" // Keep as 'text' to allow decimal input
+          inputMode="decimal" // This suggests a decimal keypad on mobile devices
         />
         <div
           className="absolute top-1/2 right-5 -translate-y-1/2 bg-zinc-950 rounded-xl flex items-center gap-1.5 font-semibold text-base px-2 cursor-pointer py-1.5"
