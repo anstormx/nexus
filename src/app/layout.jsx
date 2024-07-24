@@ -6,17 +6,12 @@ import Providers from "./components/provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
-  title: "nexus",
-  description: "decentralized exchange.",
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>{metadata.title}</title>
-        <meta name="description" content={metadata.description} />
+        <title>nexus</title>
+        <meta name="description" content="decentralized exchange." />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="stylesheet" href={inter.url} />
       </head>
