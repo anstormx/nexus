@@ -12,7 +12,7 @@ import liquidity from "../../utils/liquidity.json";
 import v3pool from "../../utils/v3poolABI.json";
 import erc20 from "../../utils/dai.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
-import Footer from "./footer";
+import Footer from "../components/footer";
 
 function Swap() {
   const [isOpen, setIsOpen] = useState(false);
@@ -378,8 +378,6 @@ function Swap() {
 
   return (
     <div>
-      {/* Background and title */}
-      <div className="fixed inset-0 bg-cover bg-center blur-sm z-[-1] bg-[url('https://coincodex.com/en/resources/images//admin/news/5-best-crypto-to-buy/best-crypto-to-buy-before-bitcoin-halving-2023.png:resizeboxcropjpg?1600x900')] animate-background-move"></div>{" "}
       <div className="text-center text-6xl font-semibold mt-[2%]">
         Swap anytime, <br /> anywhere.
       </div>
@@ -476,12 +474,14 @@ function Swap() {
       </div>
       {/* Footer */}
       <div>
-        <p className="text-gray-400 text-base mt-6 text-center mb-[5.8%]">
+        <p className="text-gray-400 text-base mt-6 text-center">
           The largest onchain marketplace. Buy and sell crypto
           <br />
           on Ethereum and 7+ other chains.
         </p>
-        <Footer />
+        <div className="mt-[6%] mb-[0.5%]">
+          <Footer />
+        </div>
       </div>
     </div>
   );

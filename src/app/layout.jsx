@@ -18,6 +18,8 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Providers>
           <div className="flex flex-col min-h-screen bg-zinc-950 bg-opacity-90">
+            {/* Background and title */}
+            <div className="fixed inset-0 bg-cover bg-center blur-sm z-[-1] bg-[url('https://coincodex.com/en/resources/images//admin/news/5-best-crypto-to-buy/best-crypto-to-buy-before-bitcoin-halving-2023.png:resizeboxcropjpg?1600x900')] animate-background-move"></div>
             {children}
             <ToastContainer
               position="bottom-right"
