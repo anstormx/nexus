@@ -64,7 +64,7 @@ export default function Home() {
             </Link>
             <Link
               href="/pool"
-              className="bg-zinc-500 hover:bg-zinc-600 font-bold py-3 px-6 rounded-lg transition duration-300"
+              className="bg-zinc-600 hover:bg-zinc-700 font-bold py-3 px-6 rounded-lg transition duration-300"
             >
               Add Liquidity
             </Link>
@@ -123,7 +123,7 @@ export default function Home() {
 
 function FeatureCard({ title, description, icon }) {
   return (
-    <div className="bg-zinc-500 p-6 mx-[30%] rounded-lg flex items-center h-full">
+    <div className="bg-zinc-600 p-6 mx-[30%] rounded-lg flex items-center h-full">
       <div className="mr-6">
         <Image
           src={icon}
