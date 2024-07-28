@@ -10,7 +10,6 @@ body {
   overflow-x: hidden;
 }
 
-
 /* For Webkit browsers (Chrome, Safari) */
 ::-webkit-scrollbar {
   width: 12px;
@@ -53,7 +52,6 @@ body {
   color: white !important;
   padding: 6% !important;
 }
-
 
 .custom-modal .ant-modal-content {
   background-color: #09090b !important; /* This is the hex code for zinc-950 */

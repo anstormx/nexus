@@ -55,17 +55,8 @@ export default function Pool() {
   }, [isMounted]);
 
   const handleAddLiquidity = async () => {
-    if (!isConnected) {
-      toast.error("Please connect your wallet");
-      return;
-    }
-
-    if (!amountA || !amountB || !tickLower || !tickUpper) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
     setLoading(true);
+
     try {
       const tx = await liquidityContract.addLiquidity(
         tokenA.address,
@@ -75,8 +66,10 @@ export default function Pool() {
         parseInt(tickLower),
         parseInt(tickUpper)
       );
+
       await tx.wait();
       toast.success("Liquidity added successfully!");
+
       setAmountA("");
       setAmountB("");
       setTickLower("");
@@ -173,22 +166,18 @@ export default function Pool() {
           tokenType="B"
           openModal={openModal}
         />
-        <div className="mb-1">
-          <Input
-            placeholder="Tick Lower"
-            value={tickLower}
-            onChange={(e) => onlyNum(e, setTickLower)}
-            className="custom-input text-white h-12 mb-1.5 text-lg rounded-xl placeholder:font-semibold"
-          />
-        </div>
-        <div className="mb-1">
-          <Input
-            placeholder="Tick Upper"
-            value={tickUpper}
-            onChange={(e) => onlyNum(e, setTickUpper)}
-            className="custom-input text-white h-12 mb-1.5 text-lg rounded-xl placeholder:font-semibold"
-          />
-        </div>
+        <Input
+          placeholder="Tick Lower"
+          value={tickLower}
+          onChange={(e) => onlyNum(e, setTickLower)}
+          className="custom-input text-white h-12 mb-1.5 text-lg rounded-xl placeholder:font-semibold"
+        />
+        <Input
+          placeholder="Tick Upper"
+          value={tickUpper}
+          onChange={(e) => onlyNum(e, setTickUpper)}
+          className="custom-input text-white h-12 mb-1.5 text-lg rounded-xl placeholder:font-semibold"
+        />
         {/* Swap button */}
         <div
           className={`flex justify-center items-center bg-pink-500 w-full h-[55px] text-xl rounded-xl font-bold transition duration-300 ${

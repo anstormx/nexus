@@ -29,6 +29,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
+    "swiper": "^11.1.8",
     "viem": "^2.17.3",
     "wagmi": "^2.10.10"
   },
