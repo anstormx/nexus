@@ -10,8 +10,21 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>nexus</title>
-        <meta name="description" content="decentralized exchange." />
+        <title>NEXUS: Decentralized Swapping</title>
+        <meta
+          name="description"
+          content="NEXUS: A decentralized exchange platform for secure and efficient token swapping."
+        />
+        <meta
+          name="keywords"
+          content="decentralized exchange, DEX, crypto swapping, blockchain, NEXUS"
+        />
+        <meta property="og:title" content="NEXUS: Decentralized Swapping" />
+        <meta
+          property="og:description"
+          content="NEXUS: A decentralized exchange platform for secure and efficient token swapping."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="stylesheet" href={inter.url} />
       </head>

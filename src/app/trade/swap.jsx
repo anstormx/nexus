@@ -479,9 +479,9 @@ function Swap() {
           <br />
           on Ethereum and 7+ other chains.
         </p>
-        <div className="mt-[6%] mb-[0.5%]">
+        {/* <div className="mt-[6%] mb-[0.5%]">
           <Footer />
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -211,9 +211,9 @@ export default function Pool() {
           <br />
           favorite token pairs on multiple chains.
         </p>
-        <div className="mt-[8%] mb-[0.5%]">
+        {/* <div className="mt-[8%] mb-[0.5%]">
           <Footer />
-        </div>
+        </div> */}
       </div>
     </div>
   );

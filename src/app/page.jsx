@@ -67,7 +67,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="mb-16 w-full">
+        {/* <section className="mb-16 w-full">
           <div className="flex justify-between items-center bg-transparent p-6 rounded-lg">
             <div className="text-center">
               <p className="text-2xl font-semibold mb-2">Total Liquidity</p>
@@ -120,7 +120,7 @@ export default function Home() {
               />
             </SwiperSlide>
           </Swiper>
-        </section>
+        </section> */}
       </main>
     </div>
   );
