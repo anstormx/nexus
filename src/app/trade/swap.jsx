@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Input, Popover, Modal, Select } from "antd";
-import { DownOutlined, SettingOutlined } from "@ant-design/icons";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import bn from "bignumber.js";
+import { motion } from "framer-motion";
+import { ChevronDown, Settings } from "lucide-react";
 import tokenList from "../../utils/tokenList.json";
 import SwapV1 from "../../utils/swapV1.json";
 import liquidity from "../../utils/liquidity.json";
@@ -14,7 +14,7 @@ import erc20 from "../../utils/dai.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import Footer from "../components/footer";
 
-function Swap() {
+export default function Swap() {
   const [isOpen, setIsOpen] = useState(false);
   const [changeToken, setChangeToken] = useState(null);
   const [numInputTokens, setNumInputTokens] = useState(1);
@@ -27,6 +27,7 @@ function Swap() {
   const [liquidityContract, setLiquidityContract] = useState(null);
   const [signer, setSigner] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const { address, isConnected } = useAccount();
   const isMounted = useIsMounted();
@@ -351,23 +352,31 @@ function Swap() {
     },
     [inputTokens, outputToken, fetchPrice]
   );
-
+  
   const settings = useMemo(
     () => (
-      <div>
-        <div className="mb-2 text-white">Number of Input Tokens</div>
-        <div>
-          <Select
-            value={numInputTokens}
-            onChange={handleNumInputTokensChange}
-            style={{ width: "50%" }}
+      <div className="px-4 py-2 bg-zinc-800 rounded-lg mb-4">
+        <div className="mb-4">
+          <label
+            className="block text-sm font-medium mb-2 mt-2"
+            htmlFor="num-tokens"
           >
-            {[...Array(3).keys()].map((i) => (
-              <Select.Option key={i + 1} value={i + 1}>
-                {i + 1}
-              </Select.Option>
+            Number of Input Tokens
+          </label>
+          <select
+            id="num-tokens"
+            value={numInputTokens}
+            onChange={(e) =>
+              handleNumInputTokensChange(parseInt(e.target.value))
+            }
+            className="w-full bg-zinc-700 text-white rounded-md px-3 py-2"
+          >
+            {[1, 2, 3].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
             ))}
-          </Select>
+          </select>
         </div>
       </div>
     ),
@@ -378,58 +387,33 @@ function Swap() {
 
   return (
     <div>
-      <div className="text-center text-6xl font-semibold mt-[2%]">
-        Swap anytime, <br /> anywhere.
-      </div>
-      {/* Token selection modal */}
-      <Modal
-        open={isOpen}
-        footer={null}
-        onCancel={() => setIsOpen(false)}
-        title="Select a token"
-        className="custom-modal"
-      >
-        <div className="flex flex-col gap-2.5 mt-5 pt-5">
-          {tokenList?.map((e, i) => (
-            <div
-              className="flex items-center px-4 py-2.5 hover:bg-[#18181b] cursor-pointer text-white rounded-xl transition duration-200"
-              key={i}
-              onClick={() => modifyToken(i)}
+      <div className="container mx-auto px-4 py-16">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-6xl font-bold text-center mb-12 bg-gradient-to-r from-pink-500 to-yellow-500 text-transparent bg-clip-text"
+        >
+          Swap anytime, anywhere.
+        </motion.h1>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="max-w-md mx-auto bg-zinc-900 rounded-3xl p-6 shadow-lg"
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">Swap</h2>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="text-gray-300 hover:text-white transition-all duration-300 hover:rotate-90 cursor-pointer"
             >
-              <Image
-                src={`${e.logoURI}`}
-                alt={e.symbol}
-                width={24}
-                height={24}
-              />
-              <div className="ml-2.5">
-                <div className="text-base font-medium">{e.name}</div>
-                <div className="text-sm font-light text-[#ababac]">
-                  {e.symbol}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Modal>
-      {/* Main swap interface */}
-      <div className="w-[28%] bg-zinc-950 rounded-3xl mx-auto p-3 mt-10">
-        {/* Slippage settings */}
-        <div className="flex flex-row w-full justify-between">
-          <div className="text-xl font-semibold mb-1 text-gray-300">Sell</div>
-          <div>
-            <Popover
-              content={settings}
-              trigger="click"
-              overlayClassName="custom-popover"
-            >
-              <SettingOutlined className="text-gray-300 hover:text-white transition-all duration-300 hover:rotate-90 cursor-pointer" />
-            </Popover>
+              <Settings className="h-5 w-5" />
+            </button>
           </div>
-        </div>
 
-        <div className="relative w-full">
-          {/* Input token fields */}
+          {showSettings && settings}
+
           {inputTokens.slice(0, numInputTokens).map((input, index) => (
             <InputBox
               key={index}
@@ -440,89 +424,122 @@ function Swap() {
             />
           ))}
 
-          {/* Output token field */}
-          <div className="text-xl font-semibold mb-1 text-gray-300">Buy</div>
           <InputBox
             input={{ token: outputToken, amount: outputAmount }}
             index="output"
             handleInputChange={() => {}}
             openModal={openModal}
+            isOutput
           />
-        </div>
 
-        {/* Swap button */}
-        <div
-          className={`flex justify-center items-center bg-pink-500 w-full h-[55px] text-xl rounded-xl font-bold transition duration-300 ${
-            !inputTokens.some((input) => input.amount) ||
-            !isConnected ||
-            loading
-              ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-pink-400 cursor-pointer"
-          }`}
-          onClick={() => {
-            if (
-              inputTokens.some((input) => input.amount) &&
-              isConnected &&
-              !loading
-            ) {
-              handleSwap();
+          <button
+            className={`w-full mt-6 py-3 px-4 rounded-lg font-semibold ${
+              !inputTokens.some((input) => input.amount) ||
+              !isConnected ||
+              loading
+                ? "bg-pink-500/50 cursor-not-allowed"
+                : "bg-pink-500 hover:bg-pink-600 transition-colors"
+            }`}
+            disabled={
+              !inputTokens.some((input) => input.amount) ||
+              !isConnected ||
+              loading
             }
-          }}
-        >
-          {isConnected ? "Swap" : "Connect Wallet"}
-        </div>
-      </div>
-      {/* Footer */}
-      <div>
-        <p className="text-gray-400 text-base mt-6 text-center">
+            onClick={handleSwap}
+          >
+            {isConnected
+              ? loading
+                ? "Swapping..."
+                : "Swap"
+              : "Connect Wallet"}
+          </button>
+        </motion.div>
+
+        <p className="text-gray-400 text-base mt-12 text-center">
           The largest onchain marketplace. Buy and sell crypto
           <br />
           on Ethereum and 7+ other chains.
         </p>
-        {/* <div className="mt-[6%] mb-[0.5%]">
-          <Footer />
-        </div> */}
       </div>
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-zinc-800 rounded-lg p-6 w-96">
+            <h3 className="text-xl font-semibold mb-4">Select a token</h3>
+            <div className="max-h-96 overflow-y-auto">
+              {tokenList.map((token, i) => (
+                <button
+                  key={i}
+                  className="w-full flex items-center p-2 hover:bg-zinc-700 rounded-lg transition-colors"
+                  onClick={() => modifyToken(i)}
+                >
+                  <Image
+                    src={token.logoURI}
+                    alt={token.symbol}
+                    width={24}
+                    height={24}
+                    className="mr-2"
+                  />
+                  <span>{token.name}</span>
+                  <span className="ml-auto text-gray-400">{token.symbol}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              className="mt-4 w-full bg-zinc-700 hover:bg-zinc-600 py-2 rounded-lg transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function InputBox({ input, index, handleInputChange, openModal }) {
-  const handleLocalChange = (e) => {
-    const newValue = e.target.value;
-    // Only allow numbers and decimal point
-    if (/^\d*\.?\d*$/.test(newValue) || newValue === "") {
-      handleInputChange(index, newValue);
-    }
-  };
-
+function InputBox({
+  input,
+  index,
+  handleInputChange,
+  openModal,
+  isOutput = false,
+}) {
   return (
-    <div>
-      <div className="relative">
-        <Input
+    <div className="mb-4">
+      <div className="flex justify-between mb-2">
+        <label className="text-sm font-medium text-gray-400">
+          {isOutput ? "You receive" : "You pay"}
+        </label>
+        {!isOutput && (
+          <span className="text-sm text-gray-400">Balance: 0.00</span>
+        )}
+      </div>
+      <div className="flex items-center bg-zinc-800 rounded-lg p-2">
+        <input
+          type="text"
+          inputMode="decimal"
           placeholder="0"
           value={input.amount}
-          onChange={handleLocalChange}
-          className="custom-input text-white h-24 mb-1.5 text-3xl rounded-xl placeholder:font-semibold"
-          type="text" // Keep as 'text' to allow decimal input
-          inputMode="decimal" // This suggests a decimal keypad on mobile devices
+          onChange={(e) => handleInputChange(index, e.target.value)}
+          className="bg-transparent border-none text-2xl w-full focus:outline-none"
+          disabled={isOutput}
         />
-        <div
-          className="absolute top-1/2 right-5 -translate-y-1/2 bg-zinc-950 rounded-xl flex items-center gap-1.5 font-semibold text-base px-2 cursor-pointer py-1.5"
+        <button
+          className="ml-2 flex items-center bg-zinc-700 hover:bg-zinc-600 px-3 py-1 rounded-lg transition-colors"
           onClick={() => openModal(index)}
         >
           <Image
-            src={`${input.token.logoURI}`}
+            src={input.token.logoURI}
             alt={input.token.symbol}
             width={24}
             height={24}
+            className="mr-2"
           />
-          {input.token.symbol}
-          <DownOutlined />
-        </div>
+          <span>{input.token.symbol}</span>
+          <ChevronDown className="ml-2 h-4 w-4" />
+        </button>
       </div>
     </div>
   );
 }
-
-export default Swap;
