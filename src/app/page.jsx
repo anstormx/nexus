@@ -86,7 +86,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-16 w-full"
+          className="mb-14 w-full"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <StatCard
@@ -172,9 +172,9 @@ function StatCard({ title, value, icon }) {
 
 function FeatureCard({ title, description, icon }) {
   return (
-    <div className="bg-white/10 mx-[28%] backdrop-blur-lg py-12 rounded-2xl flex flex-col items-center h-full text-center">
-      <div className="mb-6 text-pink-500">{icon}</div>{" "}
-      <h3 className="text-2xl font-semibold mb-4">{title}</h3>
+    <div className="bg-white/10 mx-[28%] backdrop-blur-lg py-10 rounded-2xl flex flex-col items-center h-full text-center">
+      <div className="mb-6 text-yellow-500">{icon}</div>{" "}
+      <h3 className="text-2xl font-semibold mb-4 text-pink-500">{title}</h3>
       <p className="text-lg">{description}</p>
     </div>
   );

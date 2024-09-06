@@ -3,14 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
-import { Input, Button, Select, Modal } from "antd";
-import { DownOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { ChevronDown, Settings } from "lucide-react";
 import tokenList from "../../utils/tokenList.json";
 import liquidity from "../../utils/liquidity.json";
 import Header from "../components/header";
-import Footer from "../components/footer";
 import { useIsMounted } from "@/hooks/useIsMounted";
 
 export default function Pool() {
@@ -103,7 +102,6 @@ export default function Pool() {
 
   const onlyNum = (e, setValue) => {
     const newValue = e.target.value;
-    // Only allow numbers and a single decimal point
     if (/^\d*\.?\d*$/.test(newValue)) {
       setValue(newValue);
     }
@@ -114,122 +112,126 @@ export default function Pool() {
   return (
     <div>
       <Header />
-      {/* Token selection modal */}
-      <Modal
-        open={isOpen}
-        footer={null}
-        onCancel={() => setIsOpen(false)}
-        title="Select a token"
-        className="custom-modal"
-      >
-        <div className="flex flex-col gap-2.5 mt-5 pt-5">
-          {tokenList?.map((e, i) => (
-            <div
-              className="flex items-center px-4 py-2.5 hover:bg-[#18181b] cursor-pointer text-white rounded-xl transition duration-200"
-              key={i}
-              onClick={() => modifyToken(i)}
-            >
-              <Image
-                src={`${e.logoURI}`}
-                alt={e.symbol}
-                width={24}
-                height={24}
-              />
-              <div className="ml-2.5">
-                <div className="text-base font-medium">{e.name}</div>
-                <div className="text-sm font-light text-[#ababac]">
-                  {e.symbol}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Modal>
-      {/* Main content */}
-      <div className="w-[28%] bg-zinc-950 rounded-3xl mx-auto p-3 mt-10">
-        <h2 className="text-xl font-semibold mb-1 text-gray-300">
-          Add Liquidity
-        </h2>
-        <InputBox
-          token={tokenA}
-          amount={amountA}
-          setToken={setTokenA}
-          setAmount={setAmountA}
-          tokenType="A"
-          openModal={openModal}
-        />
-        <InputBox
-          token={tokenB}
-          amount={amountB}
-          setToken={setTokenB}
-          setAmount={setAmountB}
-          tokenType="B"
-          openModal={openModal}
-        />
-        <Input
-          placeholder="Tick Lower"
-          value={tickLower}
-          onChange={(e) => onlyNum(e, setTickLower)}
-          className="custom-input text-white h-12 mb-1.5 text-lg rounded-xl placeholder:font-semibold"
-        />
-        <Input
-          placeholder="Tick Upper"
-          value={tickUpper}
-          onChange={(e) => onlyNum(e, setTickUpper)}
-          className="custom-input text-white h-12 mb-1.5 text-lg rounded-xl placeholder:font-semibold"
-        />
-        {/* Swap button */}
-        <div
-          className={`flex justify-center items-center bg-pink-500 w-full h-[55px] text-xl rounded-xl font-bold transition duration-300 ${
-            !isConnected ||
-            !amountA ||
-            !amountB ||
-            !tickLower ||
-            !tickUpper ||
-            loading ||
-            true
-              ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-pink-400 cursor-pointer"
-          }`}
-          onClick={() => {
-            if (
-              inputTokens.some((input) => input.amount) &&
-              isConnected &&
-              !loading
-            ) {
-              handleAddLiquidity();
-            }
-          }}
+      <div className="container mx-auto px-4 py-16">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-6xl font-bold text-center mb-12 bg-gradient-to-r from-pink-500 to-yellow-500 text-transparent bg-clip-text"
         >
-          {isConnected ? "Add Liquidity" : "Connect Wallet"}
-        </div>
-      </div>
-      {/* Footer */}
-      <div>
-        <p className="text-gray-400 text-base mt-6 text-center mb-[5.8%]">
+          Add Liquidity
+        </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="max-w-md mx-auto bg-zinc-900 rounded-3xl p-6 shadow-lg"
+        >
+          <h2 className="text-2xl font-semibold mb-6">Provide Liquidity</h2>
+
+          <InputBox
+            token={tokenA}
+            amount={amountA}
+            setAmount={setAmountA}
+            tokenType="A"
+            openModal={openModal}
+          />
+          <InputBox
+            token={tokenB}
+            amount={amountB}
+            setAmount={setAmountB}
+            tokenType="B"
+            openModal={openModal}
+          />
+          <input
+            placeholder="Tick Lower"
+            value={tickLower}
+            onChange={(e) => onlyNum(e, setTickLower)}
+            className="w-full bg-zinc-800 text-white h-12 mb-4 text-lg rounded-xl placeholder:text-gray-400 px-4 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          />
+          <input
+            placeholder="Tick Upper"
+            value={tickUpper}
+            onChange={(e) => onlyNum(e, setTickUpper)}
+            className="w-full bg-zinc-800 text-white h-12 mb-4 text-lg rounded-xl placeholder:text-gray-400 px-4 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          />
+
+          <button
+            className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition duration-300 ${
+              !isConnected ||
+              !amountA ||
+              !amountB ||
+              !tickLower ||
+              !tickUpper ||
+              loading
+                ? "bg-pink-500/50 cursor-not-allowed"
+                : "bg-pink-500 hover:bg-pink-600"
+            }`}
+            onClick={handleAddLiquidity}
+            disabled={
+              !isConnected ||
+              !amountA ||
+              !amountB ||
+              !tickLower ||
+              !tickUpper ||
+              loading
+            }
+          >
+            {isConnected
+              ? loading
+                ? "Adding Liquidity..."
+                : "Add Liquidity"
+              : "Connect Wallet"}
+          </button>
+        </motion.div>
+
+        <p className="text-gray-400 text-base mt-12 text-center">
           Provide liquidity to earn fees and rewards. Support your
           <br />
           favorite token pairs on multiple chains.
         </p>
-        {/* <div className="mt-[8%] mb-[0.5%]">
-          <Footer />
-        </div> */}
       </div>
+
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-zinc-800 rounded-lg p-6 w-96">
+            <h3 className="text-xl font-semibold mb-4">Select a token</h3>
+            <div className="max-h-96 overflow-y-auto">
+              {tokenList.map((token, i) => (
+                <button
+                  key={i}
+                  className="w-full flex items-center p-2 hover:bg-zinc-700 rounded-lg transition-colors"
+                  onClick={() => modifyToken(i)}
+                >
+                  <Image
+                    src={token.logoURI}
+                    alt={token.symbol}
+                    width={24}
+                    height={24}
+                    className="mr-2"
+                  />
+                  <span>{token.name}</span>
+                  <span className="ml-auto text-gray-400">{token.symbol}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              className="mt-4 w-full bg-zinc-700 hover:bg-zinc-600 py-2 rounded-lg transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function InputBox({
-  token,
-  amount,
-  setToken,
-  setAmount,
-  tokenType,
-  openModal,
-}) {
+function InputBox({ token, amount, setAmount, tokenType, openModal }) {
   const onlyNum = (e) => {
     const newValue = e.target.value;
-    // Only allow numbers and decimal point
     if (/^\d*\.?\d*$/.test(newValue) || newValue === "") {
       setAmount(newValue);
     }
@@ -237,28 +239,29 @@ function InputBox({
 
   return (
     <div className="mb-4">
-      <div className="relative">
-        <Input
+      <div className="flex items-center bg-zinc-800 rounded-xl p-4">
+        <input
           placeholder="0"
           value={amount}
           onChange={onlyNum}
-          className="custom-input text-white h-24 mb-1.5 text-3xl rounded-xl placeholder:font-semibold"
+          className="bg-transparent text-white text-3xl w-full focus:outline-none"
           type="text"
           inputMode="decimal"
         />
-        <div
-          className="absolute top-1/2 right-5 -translate-y-1/2 bg-zinc-950 rounded-xl flex items-center gap-1.5 font-semibold text-base px-2 cursor-pointer py-1.5"
+        <button
+          className="flex items-center bg-zinc-700 hover:bg-zinc-600 px-3 py-2 rounded-lg transition-colors"
           onClick={() => openModal(tokenType)}
         >
           <Image
-            src={`${token.logoURI}`}
+            src={token.logoURI}
             alt={token.symbol}
             width={24}
             height={24}
+            className="mr-2"
           />
-          {token.symbol}
-          <DownOutlined />
-        </div>
+          <span>{token.symbol}</span>
+          <ChevronDown className="ml-2 h-4 w-4" />
+        </button>
       </div>
     </div>
   );

@@ -15,8 +15,7 @@ function Header() {
           Explore
         </div>
         <div className="ml-6 hover:text-gray-300 transition duration-300 cursor-pointer mt-2">
-          {/* <Link href="/pool">Pool</Link> */}
-          Pool
+          <Link href="/pool">Pool</Link>
         </div>
       </div>
       <ConnectButton />
