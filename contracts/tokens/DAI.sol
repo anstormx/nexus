@@ -8,4 +8,8 @@ contract DAI is ERC20 {
     constructor() ERC20("Dai Stablecoin", "DAI") {
         _mint(msg.sender, 1000000 * 10 ** decimals());
     }
+
+    function faucet(address to, uint256 amount) external {
+        _mint(to, amount * 10 ** decimals());
+    }
 }

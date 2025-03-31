@@ -57,13 +57,25 @@ export default function Pool() {
     setLoading(true);
 
     try {
+      // Approve tokens
+      const tokenAContract = new ethers.Contract(tokenA.address, ["function approve(address spender, uint256 amount) public returns (bool)"], await ethers.getSigner());
+      const tokenBContract = new ethers.Contract(tokenB.address, ["function approve(address spender, uint256 amount) public returns (bool)"], await ethers.getSigner());
+
+      const amountAWei = ethers.parseUnits(amountA, tokenA.decimals);
+      const amountBWei = ethers.parseUnits(amountB, tokenB.decimals);
+
+      await tokenAContract.approve(liquidity.address, amountAWei);
+      await tokenBContract.approve(liquidity.address, amountBWei);
+
+      // Add liquidity
       const tx = await liquidityContract.addLiquidity(
         tokenA.address,
         tokenB.address,
-        ethers.parseUnits(amountA, tokenA.decimals),
-        ethers.parseUnits(amountB, tokenB.decimals),
+        amountAWei,
+        amountBWei,
         parseInt(tickLower),
-        parseInt(tickUpper)
+        parseInt(tickUpper),
+        { gasLimit: 5000000 }
       );
 
       await tx.wait();
