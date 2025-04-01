@@ -12,7 +12,7 @@ async function main() {
     const multiTokenSwap = await upgrades.deployProxy(MultiTokenSwap, [
         swapRouterAddress,
         3000
-    ], { kind: 'uups' });
+    ]);
 
     await multiTokenSwap.waitForDeployment();
     const deployedAddress = await multiTokenSwap.getAddress();

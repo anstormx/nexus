@@ -1,15 +1,15 @@
 "use client";
 
 import Header from "../components/header";
-import Swap from "./swap";
+import Faucet from "./faucet";
 import Footer from "../components/footer";
 
-export default function Trade() {
+export default function FaucetPage() {
   return (
     <div>
       <Header />
-      <Swap />
+      <Faucet />
       <Footer />
     </div>
   );
-}
+} 

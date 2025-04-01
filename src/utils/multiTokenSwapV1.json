@@ -1,0 +1,155 @@
+{
+	"address": "0x133d4cF175216A9f2A5E0AB0fD3CAc9344949C71",
+	"implementationAddress": "0x79980afCE4f457009032bf283BdeB4436678B911",
+	"abi": [
+		{
+			"type": "event",
+			"anonymous": false,
+			"name": "FeeTierChanged",
+			"inputs": [
+				{
+					"type": "uint24",
+					"name": "previousFeeTier",
+					"indexed": false
+				},
+				{ "type": "uint24", "name": "newFeeTier", "indexed": false }
+			]
+		},
+		{
+			"type": "event",
+			"anonymous": false,
+			"name": "Initialized",
+			"inputs": [
+				{ "type": "address", "name": "swapRouter", "indexed": false },
+				{ "type": "uint24", "name": "feeTier", "indexed": false }
+			]
+		},
+		{
+			"type": "event",
+			"anonymous": false,
+			"name": "OwnershipTransferred",
+			"inputs": [
+				{ "type": "address", "name": "previousOwner", "indexed": true },
+				{ "type": "address", "name": "newOwner", "indexed": true }
+			]
+		},
+		{
+			"type": "event",
+			"anonymous": false,
+			"name": "RescueFunds",
+			"inputs": [
+				{ "type": "address", "name": "token", "indexed": false },
+				{ "type": "uint256", "name": "amount", "indexed": false }
+			]
+		},
+		{
+			"type": "event",
+			"anonymous": false,
+			"name": "Swapped",
+			"inputs": [
+				{ "type": "address[]", "name": "tokenIn" },
+				{ "type": "uint256[]", "name": "amountsIn" },
+				{ "type": "address", "name": "tokenOut", "indexed": false },
+				{
+					"type": "uint256",
+					"name": "totalAmountOut",
+					"indexed": false
+				}
+			]
+		},
+		{
+			"type": "function",
+			"name": "feeTier",
+			"constant": true,
+			"stateMutability": "view",
+			"payable": false,
+			"inputs": [],
+			"outputs": [{ "type": "uint24", "name": "" }]
+		},
+		{
+			"type": "function",
+			"name": "getTokenBalance",
+			"constant": true,
+			"stateMutability": "view",
+			"payable": false,
+			"inputs": [{ "type": "address", "name": "token" }],
+			"outputs": [{ "type": "uint256", "name": "" }]
+		},
+		{
+			"type": "function",
+			"name": "initialize",
+			"constant": false,
+			"payable": false,
+			"inputs": [
+				{ "type": "address", "name": "_swapRouter" },
+				{ "type": "uint24", "name": "_feeTier" }
+			],
+			"outputs": []
+		},
+		{
+			"type": "function",
+			"name": "owner",
+			"constant": true,
+			"stateMutability": "view",
+			"payable": false,
+			"inputs": [],
+			"outputs": [{ "type": "address", "name": "" }]
+		},
+		{
+			"type": "function",
+			"name": "renounceOwnership",
+			"constant": false,
+			"payable": false,
+			"inputs": [],
+			"outputs": []
+		},
+		{
+			"type": "function",
+			"name": "rescueFunds",
+			"constant": false,
+			"payable": false,
+			"inputs": [
+				{ "type": "address", "name": "token" },
+				{ "type": "uint256", "name": "amount" }
+			],
+			"outputs": []
+		},
+		{
+			"type": "function",
+			"name": "setFeeTier",
+			"constant": false,
+			"payable": false,
+			"inputs": [{ "type": "uint24", "name": "_feeTier" }],
+			"outputs": []
+		},
+		{
+			"type": "function",
+			"name": "swapRouter",
+			"constant": true,
+			"stateMutability": "view",
+			"payable": false,
+			"inputs": [],
+			"outputs": [{ "type": "address", "name": "" }]
+		},
+		{
+			"type": "function",
+			"name": "swapTokens",
+			"constant": false,
+			"payable": false,
+			"inputs": [
+				{ "type": "address[]", "name": "tokenIn" },
+				{ "type": "uint256[]", "name": "amountsIn" },
+				{ "type": "address", "name": "tokenOut" }
+			],
+			"outputs": [{ "type": "uint256", "name": "totalAmountOut" }]
+		},
+		{
+			"type": "function",
+			"name": "transferOwnership",
+			"constant": false,
+			"payable": false,
+			"inputs": [{ "type": "address", "name": "newOwner" }],
+			"outputs": []
+		}
+	]
+}

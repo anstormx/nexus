@@ -17,6 +17,9 @@ function Header() {
         <div className="ml-6 hover:text-gray-300 transition duration-300 cursor-pointer mt-2">
           <Link href="/pool">Pool</Link>
         </div>
+        <div className="ml-6 hover:text-gray-300 transition duration-300 cursor-pointer mt-2">
+          <Link href="/faucet">Faucet</Link>
+        </div>
       </div>
       <ConnectButton />
     </div>
