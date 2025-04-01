@@ -7,12 +7,12 @@ import bn from "bignumber.js";
 import { motion } from "framer-motion";
 import { ChevronDown, Settings } from "lucide-react";
 import tokenList from "../../utils/tokenList.json";
-import SwapV1 from "../../utils/swapV1.json";
+import SwapV1 from "../../utils/swap.json";
 import liquidity from "../../utils/liquidity.json";
-import v3pool from "../../utils/v3poolABI.json";
-import erc20 from "../../utils/dai.json";
+import v3pool from "../../utils/v3pool.json";
 import { useIsMounted } from "@/hooks/useIsMounted";
 import Footer from "../components/footer";
+import { erc20Abi } from "viem";
 
 export default function Swap() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,13 +21,14 @@ export default function Swap() {
   const [inputTokens, setInputTokens] = useState([
     { token: tokenList[0], amount: "" },
   ]);
-  const [outputToken, setOutputToken] = useState(tokenList[2]);
+  const [outputToken, setOutputToken] = useState(tokenList[1]);
   const [outputAmount, setOutputAmount] = useState(null);
   const [swapContract, setSwapContract] = useState(null);
   const [liquidityContract, setLiquidityContract] = useState(null);
   const [signer, setSigner] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [tokenBalances, setTokenBalances] = useState({});
 
   const { address, isConnected } = useAccount();
   const isMounted = useIsMounted();
@@ -56,6 +57,9 @@ export default function Swap() {
             signer
           );
           setLiquidityContract(liquidityContract);
+
+          // Fetch initial balances
+          await fetchTokenBalances(signer, accounts[0]);
         }
       }
     };
@@ -64,6 +68,25 @@ export default function Swap() {
       initContract();
     }
   }, [isMounted]);
+
+  const fetchTokenBalances = async (signer, userAddress) => {
+    const balances = {};
+    for (const token of tokenList) {
+      const tokenContract = new ethers.Contract(
+        token.address,
+        erc20Abi,
+        signer
+      );
+      try {
+        const balance = await tokenContract.balanceOf(userAddress);
+        balances[token.address] = ethers.formatUnits(balance, token.decimals);
+      } catch (error) {
+        console.error(`Error fetching balance for ${token.symbol}:`, error);
+        balances[token.address] = "Error";
+      }
+    }
+    setTokenBalances(balances);
+  };
 
   function decodePriceSqrt(sqrtPriceX96) {
     bn.config({ EXPONENTIAL_AT: 999999, DECIMAL_PLACES: 40 });
@@ -165,7 +188,7 @@ export default function Swap() {
       for (let i = 0; i < inputTokens.length; i++) {
         const tokenContract = new ethers.Contract(
           tokenInAddresses[i],
-          erc20.abi,
+          erc20Abi,
           signer
         );
 
@@ -352,7 +375,7 @@ export default function Swap() {
     },
     [inputTokens, outputToken, fetchPrice]
   );
-  
+
   const settings = useMemo(
     () => (
       <div className="px-4 py-2 bg-zinc-800 rounded-lg mb-4">
@@ -421,6 +444,7 @@ export default function Swap() {
               index={index}
               handleInputChange={handleInputChange}
               openModal={openModal}
+              balance={tokenBalances[input.token.address]}
             />
           ))}
 
@@ -430,6 +454,7 @@ export default function Swap() {
             handleInputChange={() => {}}
             openModal={openModal}
             isOutput
+            balance={tokenBalances[outputToken.address]}
           />
 
           <button
@@ -504,16 +529,22 @@ function InputBox({
   handleInputChange,
   openModal,
   isOutput = false,
+  balance,
 }) {
+
+  const { isConnected } = useAccount();
+  
   return (
     <div className="mb-4">
       <div className="flex justify-between mb-2">
         <label className="text-sm font-medium text-gray-400">
           {isOutput ? "You receive" : "You pay"}
         </label>
-        {!isOutput && (
-          <span className="text-sm text-gray-400">Balance: 0.00</span>
-        )}
+        <span className="text-sm text-gray-400">
+          {isConnected
+            ? `Balance: ${balance ? Number(balance).toFixed(3) : "Loading..."}`
+            : ""}
+        </span>
       </div>
       <div className="flex items-center bg-zinc-800 rounded-lg p-2">
         <input

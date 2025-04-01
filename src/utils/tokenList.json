@@ -1,58 +1,50 @@
 [
-  {
-    "type": "POLYGON",
-    "address": "0x53180AfA0de66EFe024D38B8715D1d48c1B3c1B7",
-    "name": "Wrapped Ether",
-    "symbol": "WETH",
-    "decimals": 18,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png"
-  },
-  {
-    "type": "POLYGON",
-    "address": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-    "name": "Wrapped MATIC",
-    "symbol": "WMATIC",
-    "decimals": 18,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270/logo.png"
-  },
-  {
-    "type": "POLYGON",
-    "address": "0x2eb068551d404E11aE2f294DB88BD12F5F35a09C",
-    "name": "USD Coin",
-    "symbol": "USDC",
-    "decimals": 18,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174/logo.png"
-  },
-  {
-    "type": "POLYGON",
-    "address": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-    "name": "Tether USD",
-    "symbol": "USDT",
-    "decimals": 6,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0xc2132D05D31c914a87C6611C10748AEb04B58e8F/logo.png"
-  },
-  {
-    "type": "POLYGON",
-    "address": "0x9cB75FECA0F92E29518eAcAF78cB81D642B2cc50",
-    "name": "Dai Stablecoin",
-    "symbol": "DAI",
-    "decimals": 18,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063/logo.png"
-  },
-  {
-    "type": "POLYGON",
-    "address": "0xF222cE6a36A28560ADeC7AD7193e4f89a3D27ca4",
-    "name": "ChainLink Token",
-    "symbol": "LINK",
-    "decimals": 18,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39/logo.png"
-  },
-  {
-    "type": "POLYGON",
-    "address": "0xD6DF932A45C0f255f85145f286eA0b292B21C90B",
-    "name": "Aave",
-    "symbol": "AAVE",
-    "decimals": 18,
-    "logoURI": "https://assets-cdn.trustwallet.com/blockchains/polygon/assets/0xD6DF932A45C0f255f85145f286eA0b292B21C90B/logo.png"
-  }
+	{
+		"type": "POLYGON",
+		"address": "0x941d9BB11c91EeB0374FdE0105d671EDF18013BA",
+		"name": "Wrapped Ether",
+		"symbol": "WETH",
+		"decimals": 18,
+		"logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"
+	},
+	{
+		"type": "POLYGON",
+		"address": "0xB26cf1ade8A00B55E8EF0a18AE03b79d7A41aD04",
+		"name": "Wrapped MATIC",
+		"symbol": "WMATIC",
+		"decimals": 18,
+		"logoURI": "https://assets.coingecko.com/coins/images/4713/thumb/matic-token-icon.png?1624446912"
+	},
+	{
+		"type": "POLYGON",
+		"address": "0xdb5927A097409438EEF3a4472808a419c4e44C13",
+		"name": "USD Coin",
+		"symbol": "USDC",
+		"decimals": 6,
+		"logoURI": "https://ethereum-optimism.github.io/data/USDC/logo.png"
+	},
+	{
+		"type": "POLYGON",
+		"address": "0x777D9bC1BbD6D2eD06c00a85dcbdD6A49e8eD6a0",
+		"name": "Dai Stablecoin",
+		"symbol": "DAI",
+		"decimals": 18,
+		"logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png"
+	},
+	{
+		"type": "POLYGON",
+		"address": "0x9600678CA2E5a33F36EC8c8D2731A41ecC65A200",
+		"name": "ChainLink Token",
+		"symbol": "LINK",
+		"decimals": 18,
+		"logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo.png"
+	},
+	{
+		"type": "POLYGON",
+		"address": "0x6BAf05Bc1B2660F30B909941070541143588BF01",
+		"name": "Wrapped BTC",
+		"symbol": "WBTC",
+		"decimals": 8,
+		"logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png"
+	}
 ]
